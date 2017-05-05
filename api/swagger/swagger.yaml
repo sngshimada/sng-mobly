@@ -1,0 +1,139 @@
+swagger: "2.0"
+info:
+  version: "0.0.3"
+  title: Integração SugarCRM
+# during dev, should point to your local machine
+host: tbd
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /customerCart/{customerID}:
+    get:
+      description: Retorna os itens do carrinho do cliente que foi passado o ID.
+      # used as the method name of the controller
+      operationId: getCustomerCart
+      parameters:
+        - name : customerID
+          in: path
+          description: ID do consumidor
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/cartResponse"
+  /customerRecommendation/{customerID}:
+    get:
+      description: Retorna um item recomendado para a compra de um cliente
+      operationId: getCustomerRecommendation
+      parameters:
+        - name: customerID
+          in: path
+          description: ID do consumidor
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/itemRecommended"
+  /customerMetrics/{customerID}:
+    get:
+      description: Retorna os indicadores do cliente
+      operationId: getCustomerMetrics
+      parameters:
+        - name: customerID
+          in: path
+          description: ID do consumidor
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/customerMetrics"
+        404:
+          description: Cliente não encontrado
+# complex objects have schema definitions
+definitions:
+  cartResponse:
+    type: object
+    properties:
+      cart_id:
+        type: string
+      cart_date:
+        type: string
+        format: date
+      cart_itens:
+        type: array
+        maxLength: 5
+        minLength: 0
+        items:
+          $ref: "#/definitions/cart_itens"
+  cart_itens:
+    type: object
+    properties:
+      cart_item_sku:
+        type: string
+      cart_item_sku_description:
+        type: string
+      cart_item_sku_color:
+        type: string
+      cart_item_sku_prev_delivery:
+        type: string
+        format: date
+      cart_item_sku_price:
+        type: number
+        format: float
+      cart_item_sku_img:
+        type: string
+  itemRecommended:
+    type: object
+    properties:
+      item_name:
+        type: string
+      item_sku:
+        type: string
+      item_img:
+        type: string
+        description: URL do thumbnail do item
+      item_factor:
+        type: number
+        format: float
+        description: Porcentagem de eventual compra
+  customerMetrics:
+    type: object
+    properties:
+      customer_id:
+        type: string
+        description: Identificador do cliente
+      customer_metrics:
+        type: array
+        minLength: 0
+        maxLength: 10
+        items:
+          $ref: "#/definitions/customer_metrics"
+  customer_metrics:
+    type: object
+    description: Lista com os indicadores, summary= atualizar com as info do hernan+tomas
+    properties:
+      customer_metric_name:
+        type: string
+      customer_metric_value:
+        type: integer
+      customer_metric_view:
+        type: string
+        description: tbd definir formato
