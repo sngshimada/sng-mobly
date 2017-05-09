@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.3.0"
+  version: "0.3.1"
   title: Integração SugarCRM
 # during dev, should point to your local machine
 host: tbd
@@ -117,23 +117,38 @@ definitions:
   customerMetrics:
     type: object
     properties:
-      customer_id:
+      cst_mtrc_dashlet_name:
         type: string
-        description: Identificador do cliente
-      customer_metrics:
+        description: Indica qual dashlet deve renderizar as informações
+      cst_mtrc_type:
+          type: string
+          description: tbd
+      cst_mtrc_timestamp:
+          type: string
+          format: date-time
+      cst_mtrc_customer_id:
+        type: string
+        description: Código identificador do cliente
+      cst_mtrc_customerMetrics:
         type: array
+        description: Métricas enviadas
         minLength: 0
         maxLength: 10
         items:
-          $ref: "#/definitions/customer_metrics"
-  customer_metrics:
+          $ref: "#/definitions/cst_mtrc_customerMetrics"
+  cst_mtrc_customerMetrics:
     type: object
     description: Lista com os indicadores, summary= atualizar com as info do hernan+tomas
     properties:
-      customer_metric_name:
+      customerMetric_label:
+        description: Nome do campo
         type: string
-      customer_metric_value:
-        type: integer
-      customer_metric_view:
+      customerMetric_info:
+        description: tbd
         type: string
-        description: tbd definir formato
+      customerMetric_value:
+        description: Valor
+        type: number
+        format: float
+
+      
