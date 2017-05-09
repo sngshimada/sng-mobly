@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.0.3"
+  version: "0.3.0"
   title: Integração SugarCRM
 # during dev, should point to your local machine
 host: tbd
