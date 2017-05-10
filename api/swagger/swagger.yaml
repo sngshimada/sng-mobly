@@ -1,27 +1,25 @@
 swagger: "2.0"
 info:
-  version: "0.3.1"
-  title: Integração SugarCRM
-# during dev, should point to your local machine
+  version: "0.3.2"
+  title: Integração SugarCRM - Mobly
 host: tbd
-# basePath prefixes all resource paths 
 basePath: /
-# 
 schemes:
-  # tip: remove http to make production-grade
   - http
   - https
-# format of bodies a client can send (Content-Type)
 consumes:
   - application/json
-# format of the responses to the client (Accepts)
 produces:
   - application/json
+tags:
+  - name: customer
+    description: Requisições que retornam informações do cliente Mobly
 paths:
   /customerCart/{customerID}:
     get:
+      tags:
+        - customer
       description: Retorna os itens do carrinho do cliente que foi passado o ID.
-      # used as the method name of the controller
       operationId: getCustomerCart
       parameters:
         - name : customerID
@@ -33,10 +31,11 @@ paths:
         200:
           description: Success
           schema:
-            # a pointer to a definition
             $ref: "#/definitions/cartResponse"
   /customerRecommendation/{customerID}:
     get:
+      tags:
+        - customer
       description: Retorna um item recomendado para a compra de um cliente
       operationId: getCustomerRecommendation
       parameters:
@@ -52,7 +51,9 @@ paths:
             $ref: "#/definitions/itemRecommended"
   /customerMetrics/{customerID}:
     get:
-      description: Retorna os indicadores do cliente
+      tags:
+        - customer
+      description: Retorna os indicadores do cliente, as métricas que são enviadas dentro do array podem ter campos adicionados de acordo com a necessidade.Importante anotar que a melhor prática é deixar os campos retornados marcados como não obrigatório do lado do Sugar para manter a flexibilidade de se trabalhar com quaisqer pares de  chaves/valores que forem enviados
       operationId: getCustomerMetrics
       parameters:
         - name: customerID
@@ -67,7 +68,6 @@ paths:
             $ref: "#/definitions/customerMetrics"
         404:
           description: Cliente não encontrado
-# complex objects have schema definitions
 definitions:
   cartResponse:
     type: object
@@ -138,7 +138,7 @@ definitions:
           $ref: "#/definitions/cst_mtrc_customerMetrics"
   cst_mtrc_customerMetrics:
     type: object
-    description: Lista com os indicadores, summary= atualizar com as info do hernan+tomas
+    description: Lista de indicadores por dashlet
     properties:
       customerMetric_label:
         description: Nome do campo
@@ -150,5 +150,7 @@ definitions:
         description: Valor
         type: number
         format: float
-
-      
+      customerMetric_total:
+        description: Valor total
+        type: number
+        format: float
