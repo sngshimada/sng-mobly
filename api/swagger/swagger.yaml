@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.3.2"
+  version: "0.4.0"
   title: Integração SugarCRM - Mobly
 host: tbd
 basePath: /
@@ -68,6 +68,24 @@ paths:
             $ref: "#/definitions/customerMetrics"
         404:
           description: Cliente não encontrado
+  /valueRebate/{rebate_itens}:
+    get:
+      tags:
+        - customer
+      description: Retorna o valor do rebate possível de se oferecer
+      operationId: getValueRebate
+      parameters:
+          - name: rebate_itens
+            in: path
+            description: Itens que vão ser considerados no cálculo do rebate
+            required: true
+            type: array
+            items:
+              name:
+                type: string
+      responses:
+        200:
+          description: OK
 definitions:
   cartResponse:
     type: object
