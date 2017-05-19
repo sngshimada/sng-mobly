@@ -1,7 +1,8 @@
 swagger: "2.0"
 info:
-  version: "0.4.0"
+  version: "0.4.2"
   title: Integração SugarCRM - Mobly
+  description: 0.4.2 comentado a função do rebate, pendente mais informações, inserido o novo rebate
 host: tbd
 basePath: /
 schemes:
@@ -14,6 +15,8 @@ produces:
 tags:
   - name: customer
     description: Requisições que retornam informações do cliente Mobly
+  - name: processes
+    description: Requisições que retornam informações de processos
 paths:
   /customerCart/{customerID}:
     get:
@@ -68,24 +71,42 @@ paths:
             $ref: "#/definitions/customerMetrics"
         404:
           description: Cliente não encontrado
-  /valueRebate/{rebate_itens}:
+  /itemEvaluation:
     get:
-      tags:
-        - customer
-      description: Retorna o valor do rebate possível de se oferecer
-      operationId: getValueRebate
+      tags: 
+        - processes
+      description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
+      operationId: getItemEvaluation
       parameters:
-          - name: rebate_itens
-            in: path
-            description: Itens que vão ser considerados no cálculo do rebate
-            required: true
-            type: array
-            items:
-              name:
-                type: string
+        - name: item_evaluted
+          in: body
+          description: Objeto com os itens que devem ser avaliados
+          required: true
+          schema:
+            $ref: "#/definitions/item_evaluated"
       responses:
         200:
-          description: OK
+          description: Sucess
+          schema:
+            $ref: "#/definitions/item_evaluated_value"
+  # /valueRebate/{rebate_itens}:
+  #   get:
+  #     tags:
+  #       - processes
+  #     description: Retorna o valor do rebate possível de se oferecer
+  #     operationId: getValueRebate
+  #     parameters:
+  #         - name: rebate_itens
+  #           in: path
+  #           description: Itens que vão ser considerados no cálculo do rebate
+  #           required: true
+  #           type: array
+  #           items:
+  #             name:
+  #               type: string
+  #     responses:
+  #       200:
+  #         description: OK
 definitions:
   cartResponse:
     type: object
@@ -172,3 +193,63 @@ definitions:
         description: Valor total
         type: number
         format: float
+  item_evaluated:
+    type: object
+    description: Itens enviados para o INO para obter a avaliação do rebate
+    properties:
+      order_id:
+        description: ID do pedido
+        type: string
+      order_items:
+        description: Items que são enviados para o INO para serem avaliados
+        type: array
+        items:
+          $ref: "#/definitions/order_items"
+  order_items:
+    type: object
+    description: Items que são enviados para o INO para serem avaliados
+    properties:
+      order_items_id:
+        description: ID do item
+        type: string
+      order_items_status:
+        type: string
+        description: Status de cada item 
+        enum:
+          - Entregue
+          - Outros
+      order_items_evaluation:
+        type: string
+        description: Avaliação do item, depende do que for passado no status
+        enum:
+          - 
+          - Avaria
+          - Sucata
+          - Perfeito Estado
+  item_evaluated_value:
+    type: object
+    description: Retorno do INO com o valor total do rebate
+    properties:
+      order_id:
+        description: ID do pedido
+        type: string
+      item_evaluated_value_total:
+        description: Valor total do rebate
+        type: number
+        format: float
+      iev_order_items:
+        description: Lista dos items que foram avaliados
+        type: array
+        items:
+          $ref: "#/definitions/iev_order_items"
+  iev_order_items:
+    type: object
+    description: Lista dos items que foram avaliados
+    properties:
+      iev_order_items_id:
+        description: ID do item
+        type: string
+      iev_order_items_status:
+        description: Status do item, é retornado porque pode ser diferente no INO, preciso pensar como esse valor será armazaenado no sistema, já que foi decidido que teriamos no case a imagem chapada do pedido e seus itens no case/Sugar
+        type: string
+
