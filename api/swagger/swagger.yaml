@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  version: "0.4.2"
+  version: "0.4.3"
   title: Integração SugarCRM - Mobly
-  description: 0.4.2 comentado a função do rebate, pendente mais informações, inserido o novo rebate
+  description: 0.4.3 adicionando chamada de aprovação de rebate
 host: tbd
 basePath: /
 schemes:
@@ -35,6 +35,10 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/cartResponse"
+        400:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   /customerRecommendation/{customerID}:
     get:
       tags:
@@ -52,6 +56,10 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/itemRecommended"
+        400:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   /customerMetrics/{customerID}:
     get:
       tags:
@@ -69,8 +77,10 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/customerMetrics"
-        404:
+        400:
           description: Cliente não encontrado
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   /itemEvaluation:
     get:
       tags: 
@@ -89,6 +99,32 @@ paths:
           description: Sucess
           schema:
             $ref: "#/definitions/item_evaluated_value"
+        400:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
+  /rebateValueApproval:
+    post:
+      tags:
+        - processes
+      description: Envia para o INO o valor do rebate escolhido pelo atendente e aguarda a confirmação por parte do INO
+      operationId: postRebateValueApproval
+      parameters:
+        - name: rebate_value
+          in: body
+          description: Objeto com os items do rebate e o valor do rebate acordado com o cliente
+          required: true
+          schema:
+            $ref: "#/definitions/rebate_value"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/rebate_value_confirmation"
+        400:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   # /valueRebate/{rebate_itens}:
   #   get:
   #     tags:
@@ -108,6 +144,22 @@ paths:
   #       200:
   #         description: OK
 definitions:
+  stdErroMessage:
+    description: Mensagem de erro a ser usada nas integrações
+    type: object
+    properties:
+      response_status:
+        type: string
+        description: Indica o código do erro, podemos convencionar a usar os códigos HTTP 400/500 para generalizar
+        enum:
+          - 400
+          - 500
+      request_id:
+        type: string
+        description: Enviar nesse campo o ID da requisição, por exemplo, se for consulta de pedido enviar o ID do pedido, se for de cliente enviar o do cliente, etc
+      message:
+        type: string
+        description: Nesse campo será descrito o erro que aconteceu
   cartResponse:
     type: object
     properties:
@@ -241,15 +293,46 @@ definitions:
         description: Lista dos items que foram avaliados
         type: array
         items:
-          $ref: "#/definitions/iev_order_items"
-  iev_order_items:
+          $ref: "#/definitions/resp_order_items"
+  resp_order_items:
     type: object
     description: Lista dos items que foram avaliados
     properties:
-      iev_order_items_id:
+      resp_order_items_id:
         description: ID do item
         type: string
-      iev_order_items_status:
+      resp_order_items_status:
         description: Status do item, é retornado porque pode ser diferente no INO, preciso pensar como esse valor será armazaenado no sistema, já que foi decidido que teriamos no case a imagem chapada do pedido e seus itens no case/Sugar
+        type: string
+  rebate_value:
+    type: object
+    description: Objeto com os items do rebate e o valor do rebate acordado com o cliente
+    properties:
+      order_id: 
+        description: ID do pedido
+        type: string
+      sugar_crm_user_login:
+        description: Login do usuário que está pedindo o rebate
+        type: string
+      rebate_value_total: 
+        description: Valor do rebate
+        type: number
+        format: float
+      rebate_value_order_items:
+        type: array
+        items:
+          $ref: "#/definitions/resp_order_items"
+  rebate_value_confirmation:
+    type: object
+    description: Confirmação do INO que o rebate foi registrado
+    properties:
+      response_status:
+        description: Código HTTP de resposta
+        type: string
+      order_id:
+        description: ID do pedido
+        type: string
+      message:
+        description: Mensagem de confirmação
         type: string
 
