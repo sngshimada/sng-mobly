@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  version: "0.4.3"
+  version: "0.4.4"
   title: Integração SugarCRM - Mobly
-  description: 0.4.3 adicionando chamada de aprovação de rebate
+  description: 0.4.4 fix em customerMetrics, customerCart alterado para apenas um carrinho
 host: tbd
 basePath: /
 schemes:
@@ -22,6 +22,7 @@ paths:
     get:
       tags:
         - customer
+      summary: Consulta de carrinhos
       description: Retorna os itens do carrinho do cliente que foi passado o ID.
       operationId: getCustomerCart
       parameters:
@@ -43,6 +44,7 @@ paths:
     get:
       tags:
         - customer
+      summary: Consulta de recomendação
       description: Retorna um item recomendado para a compra de um cliente
       operationId: getCustomerRecommendation
       parameters:
@@ -64,12 +66,18 @@ paths:
     get:
       tags:
         - customer
+      summary: Consulta de métricas
       description: Retorna os indicadores do cliente, as métricas que são enviadas dentro do array podem ter campos adicionados de acordo com a necessidade.Importante anotar que a melhor prática é deixar os campos retornados marcados como não obrigatório do lado do Sugar para manter a flexibilidade de se trabalhar com quaisqer pares de  chaves/valores que forem enviados
       operationId: getCustomerMetrics
       parameters:
         - name: customerID
           in: path
           description: ID do consumidor
+          required: true
+          type: string
+        - name: dashletName
+          in: query
+          description: Identificador da dashlet que está dando request
           required: true
           type: string
       responses:
@@ -85,6 +93,7 @@ paths:
     get:
       tags: 
         - processes
+      summary: Consulta de valor de rebate
       description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
       operationId: getItemEvaluation
       parameters:
@@ -107,6 +116,7 @@ paths:
     post:
       tags:
         - processes
+      summary: Pedido de aprovação/registro no INO de rebate
       description: Envia para o INO o valor do rebate escolhido pelo atendente e aguarda a confirmação por parte do INO
       operationId: postRebateValueApproval
       parameters:
@@ -208,12 +218,6 @@ definitions:
   customerMetrics:
     type: object
     properties:
-      cst_mtrc_dashlet_name:
-        type: string
-        description: Indica qual dashlet deve renderizar as informações
-      cst_mtrc_type:
-          type: string
-          description: tbd
       cst_mtrc_timestamp:
           type: string
           format: date-time
@@ -231,6 +235,9 @@ definitions:
     type: object
     description: Lista de indicadores por dashlet
     properties:
+      cst_mtrc_type:
+        type: string
+        description: Indica qual o formato que as informações serão renderizadas
       customerMetric_label:
         description: Nome do campo
         type: string
