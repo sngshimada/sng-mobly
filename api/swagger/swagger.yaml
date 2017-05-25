@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  version: "0.4.4"
+  version: "0.5.0"
   title: Integração SugarCRM - Mobly
-  description: 0.4.4 fix em customerMetrics, customerCart alterado para apenas um carrinho
+  description: 0.5.0 adicionado o modelo do customer, tag 0tbd validar, 0del acho desnecessário em duas vias
 host: tbd
 basePath: /
 schemes:
@@ -18,6 +18,20 @@ tags:
   - name: processes
     description: Requisições que retornam informações de processos
 paths:
+  #block start
+  #view do customer apenas, apagar
+  /customer:
+    get:
+      tags:
+        - customer
+        - processes
+      operationId: getCustomer
+      responses:
+        200:
+          description: Customer OK
+          schema:
+            $ref: "#/definitions/customer"
+  #block end
   /customerCart/{customerID}:
     get:
       tags:
@@ -342,4 +356,233 @@ definitions:
       message:
         description: Mensagem de confirmação
         type: string
+  customer:
+    type: object
+    description: Campos mapeados em https://docs.google.com/spreadsheets/d/1gyaxrMZ0b_wWDGXxGXdc_lq_MbNiAf8FFAyiQzYmfKA/, os nomes dos campos vão seguir o que foi escrito na planilha
+    properties:
+      id_customer:
+        description: Identificador do cliente; origem = customer
+        type: string
+      fk_store:
+        description: 0tbd 0del;  Identificador da loja de origem do customer, no documento cita que só existe o valor 1, porém buscando no banco identifiquei mais 5 valores possíveis que estão preenchidos, se é um campo de origem talvez não fosse necessário atualizar o mesmo; origem = customer
+        type: string
+      type:
+        description: PF ou PJ; origem = customer
+        type: integer
+        enum:
+          - 1
+          - 2
+      email:
+        description: E-mail do customer, é UNIQUE dentro do banco; origem = customer
+        type: string
+        maxLength: 255
+      is_confirmed:
+        description: 0tbd; Validação se precisa ser usado, no banco somente valores 0 e 1; origem = customer
+        type: integer
+        enum:
+          - 1
+          - 2
+      tax_identification:
+        description: Número do documento do customer, formatado; origem = customer
+        type: string
+        maxLength: 64
+      first_name:
+        description: Nome do customer; origem = customer
+        type: string
+        maxLength: 255
+      last_name:
+        description: Sobrenome do customer; origem = customer
+        type: string
+        maxLength: 255
+      birthdate:
+        description: 0tbd confirmar no banco o formato; Data de nascimento do customer, formato aaaa-mm-dd; origem = customer
+        type: string
+        format: date
+        maxLength: 10
+      gender:
+        description: 0tbd confirmar no banco assumindo agora que é string; Sexo do customer; origem = customer
+        type: string
+        maxLength: 6
+        enum:
+          - male
+          - female
+      company_tax_identification:
+        description: 0tbd confirmar no banco, CNPJ se for PJ; origem = customer
+        type: string
+        maxLength: 64
+      legal_name: 
+        description: Razão social; origem = customer
+        type: string
+        maxLength: 255
+      fantasy_name:
+        description: Nome fantasia; origem = customer
+        type: string
+        maxLength: 255
+      state_tax_number:
+        description: 0tbd formato, Inscrição estadual; origem = customer
+        type: string
+        maxLength: 255
+      state_tax_number_free:
+        description: 0tbd IE validar formato e valores; Flag para isento ou não de IE; origem = customer
+        type: integer
+      fk_customer_status:
+        description: 0tbd valores; Status do cliente (Ativo/Inativo/Bloqueado). Cliente nasce ativo. Bloqueado é utilizado para clientes com fraude etc; origem = customer
+        type: integer
+      id_facebook:
+        description: 0del Capta o id do cliente no facebook. Porem não estamos carregando a informação; origem = customer
+        type: string
+      sms_subscriptionn:
+        description: 0tbd validar os valores; Indica se o customer quer ou não receber sms; origem = customer
+        type: integer
+      enable_oneclickbuy:
+        description: 0del 0tbd formato se 0,1; Habilitação da função de One Click Buy pelo usuário; origem = customer
+        type: integer
+      fk_customer_status_lojamobly:
+        description: 0tbd formato; Habilitar o customer também no Atacarejo. Campo apenas disponível no BOB para o Atacarejo; origem = customer
+        type: integer
+      created_at:
+        description: 0del não precisaria atualizar esse valor; Data de criação do customer; origem = customer
+        type: string
+        format: date-time
+      updated_at:
+        description: Data de atualização do customer; origem = customer
+        type: string
+        format: date-time
+      id_customer_address:
+        description: 0tbd 0del; ID único do endereço; origem = customer_address
+        type: string
+        maxLength: 10
+      customer_address_first_name:
+        description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer; origem = customer_address
+        type: string
+        maxLength: 255
+      customer_address_last_name:
+        description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer; origem = customer_address
+        type: string
+        maxLength: 255
+      address1:
+        description: Endereço do customer; origem = customer_address
+        type: string
+        maxLength: 500
+      city:
+        description: Cidade do customer; origem = customer_address
+        type: string
+        maxLength: 255
+      postalcode:
+        description: CEP do customer, formatado padrão br; origem = customer_address
+        type: string
+        maxLength: 15
+      phone:
+        description: Telefone fixo do endereço; formatado padrão br; origem = customer_address
+        type: string
+        maxLength: 255
+      cell_phone:
+        description: Celular do endereço; origem = customer_address
+      fk_country:
+        description: 0del País do customer; origem = customer_address
+        type: string
+        maxLength: 10
+      fk_customer_address_region:
+       description: Estado do customer; origem = customer_address
+       type: string
+       maxLength: 10
+      is_default_billing:
+        description: Flag indica se o endereço do customer é de cobrança; origem = customer_address
+        type: string
+        enum:
+          - 0
+          - 1
+      is_default_shipping:
+        description: Flag indica se o endereço do customer é de entrega; origem = customer_address
+        type: string
+        enum:
+          - 0
+          - 1 
+      customer_address_created_at:
+        description: 0del Data de criação do endereço; origem = customer_address
+        type: string
+        format: date-time
+        maxLength: 19
+      customer_address_updated_at:
+        description: Data de atualização do endereço; origem = customer_address
+        type: string
+        maxLength: 19
+      complement:
+        description: Complemento do endereço do customer; origem = customer_address
+        type: string
+        maxLength: 255
+      neighborhood:
+        description: Bairro do endereço do customer; origem = customer_address
+        type: string
+        maxLength: 255
+      city_code:
+        description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP; origem = customer_address
+        type: string
+        maxLength: 7
+      street_number:
+        description: Número do endereço; origem = customer_address
+        type: string
+        maxLength: 200
+      reference_point:
+        description: Ponto de referência do endereço; origem = customer_address
+        type: string
+        maxLength: 255
+      id_customer_address_region:
+        description: ID do estado referencia para fk em customer_address ; origem = customer_address_region
+        type: string
+        maxLength: 10
+      customer_address_region_fk_country:
+        description: 0del ID do pais fk para country; origem = customer_address_region
+        type: string
+        maxLength: 10
+      code:
+        description: Sigla do estado; origem = customer_address_region
+        type: string
+        maxLength: 32
+      customer_address_region_name:
+        description: Nome do estado; origem = customer_address_region
+        type: string
+        maxLength: 255
+      id_customer_status:
+        description: ID que identifica qual o status do cliente; origem = customer_status
+        type: string
+        enum:
+          - 1
+          - 2
+          - 3
+      customer_status_name:
+        description: 0del mandar o id é o suficiente; Nome do status; origem = customer_status
+        type: string
+        enum:
+          - active [1]
+          - inactive [2]
+          - blocked [3]
+      id_customer_status_history:
+        description: 0del 0tbd acho desnecessário no momento; id da tabela de atualização de status de um cliente; origem = customer_status_history
+        type: string
+        maxLength: 10
+      fk_customer:
+        description: 0del a chave de ID do cliente já é obtida na tabela customer; ID do customer que está atualizando o status
+        type: string
+        maxLength: 10
+      customer_status_history_fk_customer_status:
+        description: fk ID do status da tabela de status; origem = customer_status_history
+        type: string
+        enum:
+          - 1
+          - 2
+          - 3
+      reason:
+        description: motivo alteração; origem = customer_status_history
+        type: string
+        maxLength: 65535
+      fk_acl_user:
+        description: 0tbd mesmo do user do crm?; ID do usuário que possui acesso ao BOB; origem = customer_status_history
+        type: string
+        maxLength: 10
+      customer_status_history_created_at:
+        description: 0tbd se sugar controlar a alteração de status do usuário enviar a data de alteração no crm para ser registrada como data de criação
+        type: string
+        format: date-time
+
 
