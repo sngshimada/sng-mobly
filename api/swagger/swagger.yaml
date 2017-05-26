@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  version: "0.5.0"
+  version: "0.5.1"
   title: Integração SugarCRM - Mobly
-  description: 0.5.0 adicionado o modelo do customer, tag 0tbd validar, 0del acho desnecessário em duas vias
+  description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
 basePath: /
 schemes:
@@ -24,7 +24,6 @@ paths:
     get:
       tags:
         - customer
-        - processes
       operationId: getCustomer
       responses:
         200:
@@ -103,25 +102,25 @@ paths:
           description: Cliente não encontrado
           schema:
             $ref: "#/definitions/stdErroMessage"
-  /itemEvaluation:
+  /orderRebate:
     get:
       tags: 
         - processes
       summary: Consulta de valor de rebate
       description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
-      operationId: getItemEvaluation
+      operationId: getOrderRebate
       parameters:
-        - name: item_evaluted
+        - name: order_evaluted
           in: body
           description: Objeto com os itens que devem ser avaliados
           required: true
           schema:
-            $ref: "#/definitions/item_evaluated"
+            $ref: "#/definitions/order_evaluated"
       responses:
         200:
           description: Sucess
           schema:
-            $ref: "#/definitions/item_evaluated_value"
+            $ref: "#/definitions/order_evaluated_value"
         400:
           description: Error
           schema:
@@ -134,39 +133,21 @@ paths:
       description: Envia para o INO o valor do rebate escolhido pelo atendente e aguarda a confirmação por parte do INO
       operationId: postRebateValueApproval
       parameters:
-        - name: rebate_value
+        - name: rebate
           in: body
           description: Objeto com os items do rebate e o valor do rebate acordado com o cliente
           required: true
           schema:
-            $ref: "#/definitions/rebate_value"
+            $ref: "#/definitions/rebate"
       responses:
         200:
           description: Success
           schema:
-            $ref: "#/definitions/rebate_value_confirmation"
+            $ref: "#/definitions/rebate_confirmation"
         400:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
-  # /valueRebate/{rebate_itens}:
-  #   get:
-  #     tags:
-  #       - processes
-  #     description: Retorna o valor do rebate possível de se oferecer
-  #     operationId: getValueRebate
-  #     parameters:
-  #         - name: rebate_itens
-  #           in: path
-  #           description: Itens que vão ser considerados no cálculo do rebate
-  #           required: true
-  #           type: array
-  #           items:
-  #             name:
-  #               type: string
-  #     responses:
-  #       200:
-  #         description: OK
 definitions:
   stdErroMessage:
     description: Mensagem de erro a ser usada nas integrações
@@ -266,7 +247,7 @@ definitions:
         description: Valor total
         type: number
         format: float
-  item_evaluated:
+  order_evaluated:
     type: object
     description: Itens enviados para o INO para obter a avaliação do rebate
     properties:
@@ -285,12 +266,6 @@ definitions:
       order_items_id:
         description: ID do item
         type: string
-      order_items_status:
-        type: string
-        description: Status de cada item 
-        enum:
-          - Entregue
-          - Outros
       order_items_evaluation:
         type: string
         description: Avaliação do item, depende do que for passado no status
@@ -299,33 +274,18 @@ definitions:
           - Avaria
           - Sucata
           - Perfeito Estado
-  item_evaluated_value:
+  order_evaluated_value:
     type: object
     description: Retorno do INO com o valor total do rebate
     properties:
       order_id:
         description: ID do pedido
         type: string
-      item_evaluated_value_total:
+      order_evaluated_value_total:
         description: Valor total do rebate
         type: number
         format: float
-      iev_order_items:
-        description: Lista dos items que foram avaliados
-        type: array
-        items:
-          $ref: "#/definitions/resp_order_items"
-  resp_order_items:
-    type: object
-    description: Lista dos items que foram avaliados
-    properties:
-      resp_order_items_id:
-        description: ID do item
-        type: string
-      resp_order_items_status:
-        description: Status do item, é retornado porque pode ser diferente no INO, preciso pensar como esse valor será armazaenado no sistema, já que foi decidido que teriamos no case a imagem chapada do pedido e seus itens no case/Sugar
-        type: string
-  rebate_value:
+  rebate:
     type: object
     description: Objeto com os items do rebate e o valor do rebate acordado com o cliente
     properties:
@@ -335,15 +295,22 @@ definitions:
       sugar_crm_user_login:
         description: Login do usuário que está pedindo o rebate
         type: string
-      rebate_value_total: 
+      rebate_total: 
         description: Valor do rebate
         type: number
         format: float
-      rebate_value_order_items:
+      rebate_order_items:
         type: array
         items:
-          $ref: "#/definitions/resp_order_items"
-  rebate_value_confirmation:
+          $ref: "#/definitions/rebate_order_items"
+  rebate_order_items:
+    type: object
+    description: Lista dos items que foram avaliados
+    properties:
+      rebate_order_items_id:
+        description: ID do item
+        type: string
+  rebate_confirmation:
     type: object
     description: Confirmação do INO que o rebate foi registrado
     properties:
