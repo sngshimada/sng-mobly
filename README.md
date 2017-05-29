@@ -1,14 +1,20 @@
-# Changelog:
+# CHANGELOG:
 
-## [v0.5.2] / 2016-05-25
+## [v0.5.2] / 2017-05-25
 ### Deleted
 - customer ~~~Dividido em customer customer_address~~
 
 ### Added
 - customer
 - customer_address
+- itemsRecommended
+  - Devido a necessidade de fixar o total da recomendação em 3 foi criado esse array para armazenar os objetos
 
-## [v0.5.1] / 2016-05-25
+### Changed
+- Fixado o total de itens em recomendação para 3
+- Alterado nome do objeto de *itemRecommended* para *itemsRecomendation*
+
+## [v0.5.1] / 2017-05-25
 ### Fixed
 - Fix em itemEvaluation
 

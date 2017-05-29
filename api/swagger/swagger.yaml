@@ -58,7 +58,7 @@ paths:
       tags:
         - customer
       summary: Consulta de recomendação
-      description: Retorna um item recomendado para a compra de um cliente
+      description: Retorna três (3) itens recomendados para oferecer na venda para o Customer
       operationId: getCustomerRecommendation
       parameters:
         - name: customerID
@@ -70,7 +70,7 @@ paths:
         200:
           description: Success
           schema:
-            $ref: "#/definitions/itemRecommended"
+            $ref: "#/definitions/itemsRecommendation"
         400:
           description: Error
           schema:
@@ -196,7 +196,20 @@ definitions:
         format: float
       cart_item_sku_img:
         type: string
-  itemRecommended:
+  itemsRecommendation:
+    type: object
+    properties:
+      customer_id:
+        type: string
+        description: ID do customer
+      itemsRecommended:
+        type: array
+        description: Itens recomendados para venda ao Customer
+        minLength: 0
+        maxLength: 3
+        items:
+          $ref: "#/definitions/itemsRecommended"
+  itemsRecommended:
     type: object
     properties:
       item_name:
