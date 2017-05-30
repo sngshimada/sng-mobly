@@ -30,6 +30,16 @@ paths:
           description: Customer OK
           schema:
             $ref: "#/definitions/customer"
+  /customerAddress:
+    get:
+      tags:
+        - customer
+      operationId: getCustomerAddress
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/customer_address"
   #block end
   /customerCart/{customerID}:
     get:
@@ -344,8 +354,15 @@ definitions:
         description: Identificador do cliente
         type: string
       fk_store:
-        description: 0del Identificador da loja de origem do customer, no documento cita que só existe o valor 1, porém buscando no banco identifiquei mais 5 valores possíveis que estão preenchidos, se é um campo de origem talvez não fosse necessário atualizar o mesmo
+        description: 0del Identificador da loja de origem do customer, no documento cita que só existe o valor 1, porém buscando no banco identifiquei mais 5 valores possíveis que estão preenchidos, se é um campo de origem talvez não fosse necessário atualizar o mesmo, no enum somente as que existem um registro relacionado de customer
         type: string
+        enum:
+          - 1 [Mobly]
+          - 3 [Mercado Livre]
+          - 4 [Webcasas]
+          - 6 [NovaCom]
+          - 7 [Walmart]
+          - 10 [CSU]
       type:
         description: PF ou PJ
         type: integer
@@ -375,7 +392,7 @@ definitions:
         description: Sobrenome do customer
         type: string
         maxLength: 255
-      birthdate:
+      birthday:
         description: 0tbd confirmar no banco o formato Data de nascimento do customer. Formato {aaaa-mm-dd}
         type: string
         format: date
@@ -419,7 +436,7 @@ definitions:
         description: Capta o id do cliente no facebook. Porem não estamos carregando a informação
         type: string
         maxLength: 255
-      sms_subscriptionn:
+      sms_subscription:
         description: Indica se o customer quer ou não receber sms
         type: integer
         enum:
@@ -513,7 +530,7 @@ definitions:
           type: string
           maxLength: 255
         address1:
-          description: Endereço do customer
+          description: Endereço do customer, sem número
           type: string
           maxLength: 500
         address2:
@@ -525,15 +542,20 @@ definitions:
           type: string
           maxLength: 255
         postalcode:
-          description: CEP do customer, formatado padrão br
+          description: CEP do customer, formatado padrão br {xxxxx-xxx}
           type: string
+          pattern: \d{5}-\d{3}
           maxLength: 15
         phone:
-          description: Telefone fixo do endereço formatado padrão br
-          type: string
+          description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
+          type: string 
+          pattern: \(\d{2}\)\d{4}-\d{4}
           maxLength: 255
         cell_phone:
-          description: Celular do endereço
+          description: Celular do endereço formato {(xx)xxxxx-xxxx}
+          type: string
+          pattern: \(\d{2}\)\d{5}-\d{4}
+          maxLength: 255
         fk_customer:
           description: FK para customer
           type: string
@@ -566,6 +588,7 @@ definitions:
         updated_at:
           description: Data de atualização do endereço
           type: string
+          format: date-time
           maxLength: 19
         complement:
           description: Complemento do endereço do customer
@@ -588,18 +611,18 @@ definitions:
           type: string
           maxLength: 255
         id_customer_address_region:
-          description: ID do estado referencia para fk em customer_address
+          description: ID do estado referencia para fk em customer_address; origem = customer_address_region
           type: string
           maxLength: 10
         customer_address_fk_country:
-          description: 0del ID do pais fk para country
+          description: 0del ID do pais fk para country; origem = customer_address_region
           type: string
           maxLength: 10
         code:
-          description: Sigla do estado
+          description: Sigla do estado; origem = customer_address_region
           type: string
           maxLength: 32
         region_name:
-          description: Nome do estado
+          description: Nome do estado; origem = customer_address_region
           type: string
           maxLength: 255

@@ -9,10 +9,16 @@
 - customer_address
 - itemsRecommended
   - Devido a necessidade de fixar o total da recomendação em 3 foi criado esse array para armazenar os objetos
+- Enum de *fk_store*
+
+### Fixed
+- Adicionado patterns e formatos em alguns campos
+- *sms_subscriptionn* corrigido para *sms_subscription*   
 
 ### Changed
 - Fixado o total de itens em recomendação para 3
 - Alterado nome do objeto de *itemRecommended* para *itemsRecomendation*
+- *bithdate* para *birthday*
 
 ## [v0.5.1] / 2017-05-25
 ### Fixed
