@@ -3,12 +3,13 @@
 ## [UNRELEASED] ~~[v.0.5.3]~~ / 2017-05-30
 
 ### Added
-- **PUT** de customer; nome da request **putCustomer**
-- Objeto *put_customer*
+- **PUT** de customer; operationID: **updateCustomer**
+- Objeto *update_customer*
 
 ### Fixed
-- Request *getCustomer*
-    - Parâmetro *customerID* no path da request
+- Request *customer
+    - Parâmetro ~~*customerID*~~ *customerKey* no path da request
+    - operationID: **getCustomer*
 - Objeto *get_customer*
     - Campos adicionados:
         - store_name    
@@ -20,8 +21,9 @@
 
 ### Changed
 - Objeto *customer* => *get_customer*
-- Nome da request alterado de **customer** para **getCustomer**  
+~~- Nome da request alterado de **customer** para **getCustomer**  ~~~
 - 2 objects de *Customer*, nem tudo que é da via **BOB** para **SugarCRM** deve ser enviado na via contrária
+- *customerID* to **customerKey**
 
 ## [v0.5.2] / 2017-05-25
 ### Deleted

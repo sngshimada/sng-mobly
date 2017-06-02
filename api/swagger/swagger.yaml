@@ -20,15 +20,15 @@ tags:
 paths:
   #block start
   #view do customer apenas, apagar
-  /getCustomer/{customerID}:
+  /customer/{customerKey}:
     get:
       tags:
         - customer
       operationId: getCustomer
       parameters:
-        - name: customerID
+        - name: customerKey
           in: path
-          description: ID do Customer procurado
+          description: CPF ou CNPJ
           required: true
           type: string
       responses:
@@ -36,19 +36,33 @@ paths:
           description: Customer OK
           schema:
             $ref: "#/definitions/get_customer"
-  # /putCustomer:
-  #   get:
-  #     tags:
-  #       - customer
-  #     operationId: postCustomer
-  #     parameters:
-  #       - name: customer_post
-  #         in: body
-  #         description: Campos atualizados do Customer
-  #         required: true
-  #         schema:
-  #           $ref: "#/definitions/post_customer"
-
+        404:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
+    put:
+      tags:
+        - customer
+      operationId: updateCustomer
+      parameters:
+        - name: customerKey
+          in: path
+          description: CPF ou CNPJ
+          required: true
+          type: string
+        - name: customer_updated
+          in: body
+          description: Campos a serem enviados do Customer, do CRM para o BOB
+          required: true
+          schema:
+            $ref: "#/definitions/update_customer"
+      responses:
+        200:
+          description: Updated OK
+        404:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   /customerAddress:
     get:
       tags:
@@ -665,6 +679,149 @@ definitions:
         description: Data de criação do customer
         type: string
         format: date-time
+      updated_at:
+        description: Data de atualização do customer
+        type: string
+        format: date-time
+      fk_customer_status:
+        description: Valores das chave do Status do cliente (Ativo/Inativo/Bloqueado). Cliente nasce ativo. Bloqueado é utilizado para clientes com fraude etc
+        type: string
+        enum:
+          - 1 [active]
+          - 2 [inactive]
+          - 3 [blocked]
+      customer_status_name:
+        description: Nome do status deve ser igual ao da fk_customer_status; origem = customer_status; nome no banco = name
+        type: string
+        enum:
+          - active
+          - inactive
+          - blocked
+      id_customer_status_history:
+        description: ID da tabela de atualização de status de um cliente; origem = customer_status_history
+        type: string
+        maxLength: 10
+      customer_status_history_fk_customer_status:
+        description: fk ID do status da tabela de status; origem = customer_status_history; nome no banco = fk_customer_status
+        type: string
+        enum:
+          - 1 [active]
+          - 2 [inactive]
+          - 3 [blocked]
+      reason:
+        description: motivo alteração
+        type: string
+        maxLength: 65535
+      fk_acl_user:
+        description: 0origem = customer_status_history
+        type: string
+        maxLength: 10
+      customer_status_history_created_at:
+        description: Data da criação; nome no banco = created_at; origem = customer_status_history
+        type: string
+        format: date-time
+  update_customer:
+    type: object
+    description: Campos mapeados em https://docs.google.com/spreadsheets/d/1gyaxrMZ0b_wWDGXxGXdc_lq_MbNiAf8FFAyiQzYmfKA/, os nomes dos campos vão seguir o que foi escrito na planilha
+    properties:
+      type:
+        description: PF ou PJ
+        type: integer
+        enum:
+          - 1
+          - 2
+      email:
+        description: E-mail do customer, é UNIQUE dentro do banco
+        type: string
+        maxLength: 255
+      is_confirmed:
+        description: 0tbd Validação se precisa ser usado, no banco somente valores 0 e 1
+        type: integer
+        enum:
+          - 0
+          - 1
+      first_name:
+        description: Nome do customer
+        type: string
+        maxLength: 255
+      last_name:
+        description: Sobrenome do customer
+        type: string
+        maxLength: 255
+      birthday:
+        description: Data de nascimento do customer. Formato {aaaa-mm-dd}
+        type: string
+        format: date
+        maxLength: 10
+        pattern: \d{4}-\d{2}-\d{2}
+      gender:
+        description: Sexo do customer
+        type: string
+        maxLength: 6
+        enum:
+          - male
+          - female
+      legal_name: 
+        description: Razão social
+        type: string
+        maxLength: 255
+      fantasy_name:
+        description: Nome fantasia
+        type: string
+        maxLength: 255
+      state_tax_number:
+        description: Inscrição estadual, formatos variados de valor
+        type: string
+        maxLength: 255
+      state_tax_number_free:
+        description: Flag para isento ou não de IE
+        type: integer
+        enum:
+          - 0
+          - 1
+      fk_customer_address_region:
+        description: FK para o estado (customer_address_region) do customer
+        type: string
+        maxLength: 10
+      customer_address_region_name:
+        description: Nome da região do fk para essa tabela; origem = customer_address_region; nome no banco = name
+        type: string
+        maxLength: 255
+      id_facebook:
+        description: Capta o id do cliente no facebook. Porem não estamos carregando a informação
+        type: string
+        maxLength: 255
+      sms_subscription:
+        description: Indica se o customer quer ou não receber sms
+        type: integer
+        enum:
+          - 0
+          - 1
+      enable_oneclickbuy:
+        description: Habilitação da função de One Click Buy pelo usuário
+        type: integer
+        enum:
+          - 0
+          - 1
+      fk_customer_status_lojamobly:
+        description: Habilitar o customer também no Atacarejo. Campo apenas disponível no BOB para o Atacarejo, FK para customer_status_lojamobly
+        type: string
+        enum:
+            - 1 [not applied]
+            - 2 [active]
+            - 3 [inactive]
+            - 4 [pending]
+            - 5 [declined]
+      customer_status_lojamobly_name:
+        description: Nome do status na loja mobly; origem = customer_status_lojamobly; nome no banco = name
+        type: string
+        enum:
+          - not applied
+          - active
+          - inactive
+          - pending
+          - declined
+        maxLength: 255
       updated_at:
         description: Data de atualização do customer
         type: string
