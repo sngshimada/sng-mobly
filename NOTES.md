@@ -23,6 +23,15 @@ Busca e atualização de customer, chave principal CPF e CNPJ
 -  
 
 ## Address
+
+###  BOB -> Sugar
+- fk_country_name
+- esse campo para trazer o nome e não um número
+- confirmar, qual o 0 e 1 de is_default_billing e is_default_shipping
+
+### Sugar -> BOB
+- created_at uma lógica simples de se não existir no banco usar o updated_at como data de criação
+
 ###  consulta customer
 
 - crm consulta

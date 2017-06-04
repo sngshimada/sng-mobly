@@ -1,15 +1,26 @@
 # CHANGELOG:
 
-## UNRELEASED ~~[v.0.5.4]~~ / 2017-06-02
+## UNRELEASED ~~[v.0.6.0]~~ / 2017-06-04
+
+## v.0.5.4 / 2017-06-02
 
 ### Added
-- Objeto *update_customer_address* [tbd]
+- Objeto *update_customer_address*
+- ~~Request *updateCustomerAddress*~~
+    - Marcado como deprecated, suprimir a mensagem de erro e guardar o objeto 
 
 ### Deleted
 - Retirado ~~suppressed~~ de *update_customer*
     - fk_customer_address_region
     - fk_customer_status_lojamobly
     - fk_customer_status
+- Retirado ~~suppressed~~ de *update_customer_address* [validar]
+    - fk_customer
+    - fk_country
+    - fk_customer_address_region
+    - created_at
+    - id_customer_address_region
+    - customer_address_fk_country
 
 ### Fixed
 - Adicionado os campos em *update_customer*
@@ -17,7 +28,8 @@
 ### Changed
 - *updateCustomer* marcada como Deprecated, a atualização será por fila e não terá uma request
 - Requests com tag de *customerID* atualizados o parâmetro para *customerKey*
-- Adicionado parâmetro *code_address*~~definir nome e formato~~ em *getCustomerAddress* [tbd]
+- Adicionado campo *code_address*~~definir nome e formato~~ em *get_customer_address*
+- *customer_address* alterado para *get_customer_address*
 
 
 ## [v.0.5.3] / 2017-05-30

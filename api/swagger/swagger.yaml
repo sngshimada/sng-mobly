@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.5.3"
+  version: "0.5.4"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
@@ -64,16 +64,46 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
-  /customerAddress:
+  /customerAddress/{customerKey}:
     get:
       tags:
         - customer
       operationId: getCustomerAddress
+      parameters:
+        - name: customerKey
+          in: path
+          description: CPF ou CNPJ
+          required: true
+          type: string
       responses:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/customer_address"
+            $ref: "#/definitions/get_customer_address"
+    put:
+      deprecated: true
+      tags:
+        - customer
+      operationId: updateCustomerAddress
+      parameters:
+        - name: customerKey
+          in: path
+          description: CPF ou CNPJ
+          required: true
+          type: string
+        - name: customer_address_updated
+          in: body
+          description: Campos a serem enviados do Customer Address, do CRM para o BOB
+          required: true
+          schema:
+            $ref: "#/definitions/update_customer_address"
+      responses:
+        200:
+          description: Updated OK
+        404:
+          description: Error
+          schema:
+            $ref: "#/definitions/stdErroMessage"
   #block end
   /customerCart/{customerKey}:
     get:
@@ -877,10 +907,14 @@ definitions:
         description: Data da criação; nome no banco = created_at; origem = customer_status_history
         type: string
         format: date-time
-  customer_address:
+  get_customer_address:
       type: object
       description: Endereço de um customer
       properties:
+        code_address:
+          description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
+          type: string
+          maxLength: 10
         id_customer_address:
           description: ID único do endereço
           type: string
@@ -928,10 +962,17 @@ definitions:
           description: País do customer
           type: string
           maxLength: 10
+        fk_country_name:
+          description: Nome do país, referência de fk_country; origem = country; nome do campo = name
+          type: string
         fk_customer_address_region:
          description: FK para o Estado do customer
          type: string
          maxLength: 10
+        region_name:
+          description: Nome do estado; origem = customer_address_region
+          type: string
+          maxLength: 255
         is_default_billing:
           description: Flag indica se o endereço do customer é de cobrança
           type: string
@@ -945,7 +986,7 @@ definitions:
             - 0
             - 1 
         created_at:
-          description: 0del Data de criação do endereço
+          description: Data de criação do endereço
           type: string
           format: date-time
           maxLength: 19
@@ -986,7 +1027,121 @@ definitions:
           description: Sigla do estado; origem = customer_address_region
           type: string
           maxLength: 32
+  update_customer_address:
+      type: object
+      description: Endereço de um customer
+      properties:
+        code_address:
+          description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
+          type: string
+          maxLength: 10
+        id_customer_address:
+          description: ID único do endereço
+          type: string
+          maxLength: 10
+        first_name:
+          description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer
+          type: string
+          maxLength: 255
+        last_name:
+          description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer
+          type: string
+          maxLength: 255
+        address1:
+          description: Endereço do customer, sem número
+          type: string
+          maxLength: 500
+        address2:
+          description: Endereço do customer
+          type: string
+          maxLength: 500
+        city:
+          description: Cidade do customer
+          type: string
+          maxLength: 255
+        postalcode:
+          description: CEP do customer, formatado padrão br {xxxxx-xxx}
+          type: string
+          pattern: \d{5}-\d{3}
+          maxLength: 15
+        phone:
+          description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
+          type: string 
+          pattern: \(\d{2}\)\d{4}-\d{4}
+          maxLength: 255
+        cell_phone:
+          description: Celular do endereço formato {(xx)xxxxx-xxxx}
+          type: string
+          pattern: \(\d{2}\)\d{5}-\d{4}
+          maxLength: 255
+        # @notForUse
+        # fk_customer:
+        #   description: FK para customer
+        #   type: string
+        #   maxLength: 10
+        # fk_country:
+        #   description: País do customer
+        #   type: string
+        #   maxLength: 10
+        fk_country_name:
+          description: Nome do país, referência de fk_country; origem = country; nome do campo = name
+          type: string
+        # @notForUse
+        # fk_customer_address_region:
+        #  description: FK para o Estado do customer
+        #  type: string
+        #  maxLength: 10
         region_name:
           description: Nome do estado; origem = customer_address_region
           type: string
           maxLength: 255
+        is_default_billing:
+          description: Flag indica se o endereço do customer é de cobrança
+          type: string
+          enum:
+            - 0
+            - 1
+        is_default_shipping:
+          description: Flag indica se o endereço do customer é de entrega
+          type: string
+          enum:
+            - 0
+            - 1 
+        updated_at:
+          description: Data de atualização do endereço
+          type: string
+          format: date-time
+          maxLength: 19
+        complement:
+          description: Complemento do endereço do customer
+          type: string
+          maxLength: 255
+        neighborhood:
+          description: Bairro do endereço do customer
+          type: string
+          maxLength: 255
+        city_code:
+          description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP
+          type: string
+          maxLength: 7
+        street_number:
+          description: Número do endereço
+          type: string
+          maxLength: 200
+        reference_point:
+          description: Ponto de referência do endereço
+          type: string
+          maxLength: 255
+        # @notForUse
+        # id_customer_address_region:
+        #   description: ID do estado referencia para fk em customer_address; origem = customer_address_region
+        #   type: string
+        #   maxLength: 10
+        # customer_address_fk_country:
+        #   description: 0del ID do pais fk para country; origem = customer_address_region
+        #   type: string
+        #   maxLength: 10
+        code:
+          description: Sigla do estado; origem = customer_address_region
+          type: string
+          maxLength: 32
