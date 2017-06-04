@@ -2,7 +2,10 @@
 
 ## UNRELEASED ~~[v.0.6.0]~~ / 2017-06-04
 
-## v.0.5.4 / 2017-06-02
+### Added
+- Reversa
+
+## [v.0.5.4] / 2017-06-02
 
 ### Added
 - Objeto *update_customer_address*
