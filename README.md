@@ -1,13 +1,33 @@
 # CHANGELOG:
 
-## [UNRELEASED] ~~[v.0.5.3]~~ / 2017-05-30
+## UNRELEASED ~~[v.0.5.4]~~ / 2017-06-02
+
+### Added
+- Objeto *update_customer_address* [tbd]
+
+### Deleted
+- Retirado ~~suppressed~~ de *update_customer*
+    - fk_customer_address_region
+    - fk_customer_status_lojamobly
+    - fk_customer_status
+
+### Fixed
+- Adicionado os campos em *update_customer*
+
+### Changed
+- *updateCustomer* marcada como Deprecated, a atualização será por fila e não terá uma request
+- Requests com tag de *customerID* atualizados o parâmetro para *customerKey*
+- Adicionado parâmetro *code_address*~~definir nome e formato~~ em *getCustomerAddress* [tbd]
+
+
+## [v.0.5.3] / 2017-05-30
 
 ### Added
 - **PUT** de customer; operationID: **updateCustomer**
 - Objeto *update_customer*
 
 ### Fixed
-- Request *customer
+- Request *customer*
     - Parâmetro ~~*customerID*~~ *customerKey* no path da request
     - operationID: **getCustomer*
 - Objeto *get_customer*
@@ -21,7 +41,7 @@
 
 ### Changed
 - Objeto *customer* => *get_customer*
-~~- Nome da request alterado de **customer** para **getCustomer**  ~~~
+~~Nome da request alterado de **customer** para **getCustomer**~~
 - 2 objects de *Customer*, nem tudo que é da via **BOB** para **SugarCRM** deve ser enviado na via contrária
 - *customerID* to **customerKey**
 

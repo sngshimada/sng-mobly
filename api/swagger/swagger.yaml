@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.5.2"
+  version: "0.5.3"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
@@ -41,6 +41,7 @@ paths:
           schema:
             $ref: "#/definitions/stdErroMessage"
     put:
+      deprecated: true
       tags:
         - customer
       operationId: updateCustomer
@@ -74,17 +75,17 @@ paths:
           schema:
             $ref: "#/definitions/customer_address"
   #block end
-  /customerCart/{customerID}:
+  /customerCart/{customerKey}:
     get:
       tags:
         - customer
       summary: Consulta de carrinhos
-      description: Retorna os itens do carrinho do cliente que foi passado o ID.
+      description: Retorna os itens do carrinho do cliente que foi passado o identificador.
       operationId: getCustomerCart
       parameters:
-        - name : customerID
+        - name : customerKey
           in: path
-          description: ID do consumidor
+          description: CPF ou CNPJ
           required: true
           type: string
       responses:
@@ -96,7 +97,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
-  /customerRecommendation/{customerID}:
+  /customerRecommendation/{customerKey}:
     get:
       tags:
         - customer
@@ -104,9 +105,9 @@ paths:
       description: Retorna três (3) itens recomendados para oferecer na venda para o Customer
       operationId: getCustomerRecommendation
       parameters:
-        - name: customerID
+        - name: customerKey
           in: path
-          description: ID do consumidor
+          description: CPF ou CNPJ
           required: true
           type: string
       responses:
@@ -118,7 +119,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
-  /customerMetrics/{customerID}:
+  /customerMetrics/{customerKey}:
     get:
       tags:
         - customer
@@ -126,9 +127,9 @@ paths:
       description: Retorna os indicadores do cliente, as métricas que são enviadas dentro do array podem ter campos adicionados de acordo com a necessidade.Importante anotar que a melhor prática é deixar os campos retornados marcados como não obrigatório do lado do Sugar para manter a flexibilidade de se trabalhar com quaisqer pares de  chaves/valores que forem enviados
       operationId: getCustomerMetrics
       parameters:
-        - name: customerID
+        - name: customerKey
           in: path
-          description: ID do consumidor
+          description: CPF ou CNPJ
           required: true
           type: string
         - name: dashletName
@@ -740,6 +741,11 @@ definitions:
         enum:
           - 0
           - 1
+      tax_identification:
+        description: Número do documento do customer, formato {xxx.xxx.xxx-xx}
+        type: string
+        maxLength: 64
+        pattern: \d{3}.\d{3}.\d{3}-\d{2}
       first_name:
         description: Nome do customer
         type: string
@@ -761,6 +767,11 @@ definitions:
         enum:
           - male
           - female
+      company_tax_identification:
+        description: CNPJ do customer. Formato {xx.xxx.xxx/xxxx-xx}
+        type: string
+        maxLength: 64
+        pattern: \d{2}.\d{3}.\d{3}\/\d{4}-\d{2}
       legal_name: 
         description: Razão social
         type: string
@@ -779,10 +790,11 @@ definitions:
         enum:
           - 0
           - 1
-      fk_customer_address_region:
-        description: FK para o estado (customer_address_region) do customer
-        type: string
-        maxLength: 10
+      # @notForUse 
+      # fk_customer_address_region:
+      #   description: FK para o estado (customer_address_region) do customer
+      #   type: string
+      #   maxLength: 10
       customer_address_region_name:
         description: Nome da região do fk para essa tabela; origem = customer_address_region; nome no banco = name
         type: string
@@ -803,15 +815,16 @@ definitions:
         enum:
           - 0
           - 1
-      fk_customer_status_lojamobly:
-        description: Habilitar o customer também no Atacarejo. Campo apenas disponível no BOB para o Atacarejo, FK para customer_status_lojamobly
-        type: string
-        enum:
-            - 1 [not applied]
-            - 2 [active]
-            - 3 [inactive]
-            - 4 [pending]
-            - 5 [declined]
+      # @notForUse    
+      # fk_customer_status_lojamobly:
+      #   description: Habilitar o customer também no Atacarejo. Campo apenas disponível no BOB para o Atacarejo, FK para customer_status_lojamobly
+      #   type: string
+      #   enum:
+      #       - 1 [not applied]
+      #       - 2 [active]
+      #       - 3 [inactive]
+      #       - 4 [pending]
+      #       - 5 [declined]
       customer_status_lojamobly_name:
         description: Nome do status na loja mobly; origem = customer_status_lojamobly; nome no banco = name
         type: string
@@ -826,13 +839,14 @@ definitions:
         description: Data de atualização do customer
         type: string
         format: date-time
-      fk_customer_status:
-        description: Valores das chave do Status do cliente (Ativo/Inativo/Bloqueado). Cliente nasce ativo. Bloqueado é utilizado para clientes com fraude etc
-        type: string
-        enum:
-          - 1 [active]
-          - 2 [inactive]
-          - 3 [blocked]
+      # @notForUse
+      # fk_customer_status:
+      #   description: Valores das chave do Status do cliente (Ativo/Inativo/Bloqueado). Cliente nasce ativo. Bloqueado é utilizado para clientes com fraude etc
+      #   type: string
+      #   enum:
+      #     - 1 [active]
+      #     - 2 [inactive]
+      #     - 3 [blocked]
       customer_status_name:
         description: Nome do status deve ser igual ao da fk_customer_status; origem = customer_status; nome no banco = name
         type: string
