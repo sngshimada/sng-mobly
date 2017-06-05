@@ -17,6 +17,10 @@ tags:
     description: Requisições que retornam informações do cliente Mobly
   - name: processes
     description: Requisições que retornam informações de processos
+  - name: syncronous
+    description: Operação síncrona
+  - name: asyncronous
+    description: Operação assíncrona
 paths:
   #block start
   #view do customer apenas, apagar
@@ -24,6 +28,7 @@ paths:
     get:
       tags:
         - customer
+        - syncronous
       operationId: getCustomer
       parameters:
         - name: customerKey
@@ -44,6 +49,7 @@ paths:
       deprecated: true
       tags:
         - customer
+        - syncronous
       operationId: updateCustomer
       parameters:
         - name: customerKey
@@ -68,6 +74,7 @@ paths:
     get:
       tags:
         - customer
+        - syncronous
       operationId: getCustomerAddress
       parameters:
         - name: customerKey
@@ -84,6 +91,7 @@ paths:
       deprecated: true
       tags:
         - customer
+        - syncronous
       operationId: updateCustomerAddress
       parameters:
         - name: customerKey
@@ -109,6 +117,7 @@ paths:
     get:
       tags:
         - customer
+        - asyncronous
       summary: Consulta de carrinhos
       description: Retorna os itens do carrinho do cliente que foi passado o identificador.
       operationId: getCustomerCart
@@ -131,6 +140,7 @@ paths:
     get:
       tags:
         - customer
+        - asyncronous
       summary: Consulta de recomendação
       description: Retorna três (3) itens recomendados para oferecer na venda para o Customer
       operationId: getCustomerRecommendation
@@ -153,6 +163,7 @@ paths:
     get:
       tags:
         - customer
+        - asyncronous
       summary: Consulta de métricas
       description: Retorna os indicadores do cliente, as métricas que são enviadas dentro do array podem ter campos adicionados de acordo com a necessidade.Importante anotar que a melhor prática é deixar os campos retornados marcados como não obrigatório do lado do Sugar para manter a flexibilidade de se trabalhar com quaisqer pares de  chaves/valores que forem enviados
       operationId: getCustomerMetrics
@@ -180,6 +191,7 @@ paths:
     get:
       tags: 
         - processes
+        - syncronous
       summary: Consulta de valor de rebate
       description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
       operationId: getOrderRebate
@@ -203,6 +215,7 @@ paths:
     post:
       tags:
         - processes
+        - syncronous
       summary: Pedido de aprovação/registro no INO de rebate
       description: Envia para o INO o valor do rebate escolhido pelo atendente e aguarda a confirmação por parte do INO
       operationId: postRebateValueApproval

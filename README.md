@@ -2,6 +2,10 @@
 
 ## UNRELEASED ~~[v.0.6.0]~~ / 2017-06-04
 
+### Added
+- Tags *asyncronous* e *syncronous*
+- Adicionada as tags novas nas requests 
+
 ## v.0.5.4 / 2017-06-02
 
 ### Added
