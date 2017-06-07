@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.5.4"
+  version: "0.6.0"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
@@ -17,6 +17,8 @@ tags:
     description: Requisições que retornam informações do cliente Mobly
   - name: processes
     description: Requisições que retornam informações de processos
+  - name: product
+    description: Requisições que retornam informações de produtos
   - name: syncronous
     description: Operação síncrona
   - name: asyncronous
@@ -26,9 +28,11 @@ paths:
   #view do customer apenas, apagar
   /customer/{customerKey}:
     get:
+      deprecated: true
       tags:
         - customer
         - syncronous
+      summary: Implementado por fila 
       operationId: getCustomer
       parameters:
         - name: customerKey
@@ -50,6 +54,7 @@ paths:
       tags:
         - customer
         - syncronous
+      summary: Implementado por fila
       operationId: updateCustomer
       parameters:
         - name: customerKey
@@ -72,9 +77,11 @@ paths:
             $ref: "#/definitions/stdErroMessage"
   /customerAddress/{customerKey}:
     get:
+      deprecated: true
       tags:
         - customer
         - syncronous
+      summary: Implementado por fila
       operationId: getCustomerAddress
       parameters:
         - name: customerKey
@@ -92,6 +99,7 @@ paths:
       tags:
         - customer
         - syncronous
+      summary: Implementado por fila
       operationId: updateCustomerAddress
       parameters:
         - name: customerKey
@@ -235,6 +243,29 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
+  /product/{sku}:
+    get:
+      tags:
+        - product
+        - syncronous
+      summary: Busca de produtos por SKU
+      description: Busca de produtos ou peça de produtos pelo SKU, completo ou parcial
+      operationId: getProductSKU
+      parameters:
+        - name: sku
+          in: path
+          description: SKU parcial ou completo do produto, ou peça do produto, buscado
+          type: string
+          required: true
+      responses:
+        200:
+          description: Produto encontrado
+          schema:
+            $ref: "#/definitions/product"
+        404:
+          description: Produto não encontrado
+          schema:
+            $ref: "#/definitions/stdErroMessage"            
 definitions:
   stdErroMessage:
     description: Mensagem de erro a ser usada nas integrações
@@ -423,6 +454,281 @@ definitions:
       message:
         description: Mensagem de confirmação
         type: string
+  product:
+    type: object
+    description: Informações do produto, ou peça, procurado
+    properties:
+      sku:
+        description: SKU do produto; origem = material
+        type: string
+        maxLength: 100
+      active:
+        description: Ativo ou não; origem = material
+        type: integer
+        enum:
+          - 0
+          - 1
+      type_id:
+        description: ID tipo do SKU; origem = material
+        type: string
+        maxLength: 11
+      type_id_name:
+        description: Descrição do type_id; origem = type; nome do campo = description
+        type: string
+        maxLength: 255
+      base_uom_id:
+        description: ID de referência para uom; origem = material
+        type: string
+        maxLength: 11
+      base_uom_id_name:
+        description: Descrição de base_uom_id; origem = uom; nome do campo = description
+        type: string
+        maxLength: 255
+      description:
+        description: Descrição do SKU; origem = material
+        type: string
+        maxLength: 255
+      material_class_id:
+        description: ID de referência para material_class; origem = material
+        type: string
+        maxLength: 11
+      material_class_id_name:
+        description: Descrição de material_class_id; origem = material_class; nome do campo = description
+        type: string
+        maxLength: 255
+      short_description:
+        description: Descrição curta do SKU; origem = material
+        type: string
+        maxLength: 255
+      observation:
+        description: Observações do SKU; origem = material
+        type: string
+        maxLength: 255
+      sku_config:
+        description: SKU tbd; origem = material
+        type: string
+        maxLength: 100
+      external_code:
+        description: External code do SKU; origem = material
+        type: string
+        maxLength: 50
+      stock_classification:
+        description: Classificação estoque SKU; enum; origem = material
+        type: string
+        maxLength: 255
+      ast_original_material_id:
+        description: tbd; origem = material
+        type: string
+        maxLength: 11
+      barcode:
+        description: Código de barras; origem = material_barcode
+        type: string
+        maxLength: 255
+      height:
+        description: Altura; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_height:
+        description: Altura usar se height estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      width:
+        description: Largura; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_width:
+        description: Largura, usar se width estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      length:
+        description: Comprimento; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_length:
+        description: Comprimento, usar se length estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      size_uom_id:
+        description: ID de size_uom_id; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_size_uom_id:
+        description: ID de size_uom_id, usar se size_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      size_uom_id_name:
+        description: Trazer a descição de size_uom_id ou external_size_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      weight:
+        description: Peso ; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_weight:
+        description: Peso, usar se weight estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      weight_uom_id:
+        description: ID de weight; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_weight_uom_id:
+        description: ID de weight_uom_id, usar se weight_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      weight_uom_id_name:
+        description: Trazer a descição de weight_uom_id ou external_weight_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      volume:
+        description: Volume; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_volume:
+        description: Volume, user se volume estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      volume_uom_id:
+        description: ID de volume; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_volume_uom_id:
+        description: ID de volume, usar se volume_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      volume_uom_id_name:
+        description: Trazer a descição de volume_uom_id ou external_volume_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      uom_id:
+        description: ID de uom (unity of measure?); origem = material_barcode
+        type: string
+        maxLength: 11
+      uom_id_name:
+        description: Descrição de uom_id; origem = uom; nome do campo = description 
+        type: string
+        maxLength: 255
+      box_height:
+        description: Altura da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_box_height:
+        description: Altura da caixa usar se box_height estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      box_width:
+        description: Largura da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_box_width:
+        description: Largura da caixa usar se box_width estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      box_length:
+        description: Comprimento da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_box_length:
+        description: Comprimento da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      box_size_uom_id:
+        description: UOM de box size; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_box_size_uom_id:
+        description: UOM de box size, usar se box_size_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      box_size_uom_id_name:
+        description: Trazer a descição de box_size_uom_id ou external_box_size_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      box_weight:
+        description: Peso da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_box_weight:
+        description: Peso da caixa usar se box_weight estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      box_weight_uom_id:
+        description: ID da uom de box_weight; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_box_weight_uom_id:
+        description: ID da uom de box_weight, usar se box_weight_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      box_weight_uom_id_name:
+        description: Trazer a descição de box_weight_uom_id ou external_box_weight_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      box_volume:
+        description: Volume da caixa; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      external_box_volume:
+        description: Volume da caixa usar se box_volume estiver vazio; origem = material_barcode
+        type: number
+        format: decimal (16,6)
+      box_volume_uom_id:
+        description: ID da uom de box_volume; origem = material_barcode
+        type: string
+        maxLength: 11
+      external_box_volume_uom_id:
+        description: ID da uom de box_volume, usar se box_volume_uom_id estiver vazio; origem = material_barcode
+        type: string
+        maxLength: 11
+      box_volume_uom_id_name:
+        description: Trazer a descição de box_volume_uom_id ou external_box_volume_uom_id; origem = uom; campo = description
+        type: string
+        maxLength: 255
+      internal_barcode:
+        description: Código de barras (hash) interno; origem = material_barcode
+        type: string
+        maxLength: 255
+      supplier_id:
+        description: ID do fornecedor; origem material_supplier
+        type: string
+        maxLength: 11
+      supplier_id_name:
+        description: Nome do supplier_id; join com tabela partner, trazer campo name
+        type: string
+        maxLength: 255
+      incoterms_id:
+        description: ID de referência para incoterms; origem material_supplier
+        type: string
+        maxLength: 11
+      incoterms_id_name:
+        description: Descrição de incoterms_id; join com incoterms, trazer campo description
+        type: string
+        maxLength: 255
+      origin_country:
+        description: País de origem; origem material_supplier
+        type: string
+        maxLength: 100
+      color_supplier:
+        description: Cor do fornecedor; origem material_supplier
+        type: string
+        maxLength: 255
+      media:
+        description: URL do produto; origem = material_media; join com material trazer o campo media de material_media
+        type: string
+        maxLength: 255
+      comercial_responsavel:
+        description: tbd
+        type: string
+        maxLength: 255
+      manager:
+        description: Manger do sku; origem = venture_material, join com material; campo = manager
+        type: string
+        maxLength: 255
+      brand:
+        description: Marca do sku; origem = venture_material, join com material; campo = brand
+        type: string
+        maxLength: 255
+  # start: block customer
   # get_customer:
   #   type: object
   #   description: Campos mapeados em https://docs.google.com/spreadsheets/d/1gyaxrMZ0b_wWDGXxGXdc_lq_MbNiAf8FFAyiQzYmfKA/, os nomes dos campos vão seguir o que foi escrito na planilha
@@ -768,6 +1074,13 @@ definitions:
     type: object
     description: Campos mapeados em https://docs.google.com/spreadsheets/d/1gyaxrMZ0b_wWDGXxGXdc_lq_MbNiAf8FFAyiQzYmfKA/, os nomes dos campos vão seguir o que foi escrito na planilha
     properties:
+      customer:
+        type: object
+        $ref: "#/definitions/customer_body"
+  customer_body:
+    type: object
+    description: Campos sendo enviados para o BOB para atualização
+    properties:
       type:
         description: PF ou PJ
         type: integer
@@ -924,237 +1237,253 @@ definitions:
       type: object
       description: Endereço de um customer
       properties:
-        code_address:
-          description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
-          type: string
-          maxLength: 10
-        id_customer_address:
-          description: ID único do endereço
-          type: string
-          maxLength: 10
-        first_name:
-          description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer
-          type: string
-          maxLength: 255
-        last_name:
-          description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer
-          type: string
-          maxLength: 255
-        address1:
-          description: Endereço do customer, sem número
-          type: string
-          maxLength: 500
-        address2:
-          description: Endereço do customer
-          type: string
-          maxLength: 500
-        city:
-          description: Cidade do customer
-          type: string
-          maxLength: 255
-        postalcode:
-          description: CEP do customer, formatado padrão br {xxxxx-xxx}
-          type: string
-          pattern: \d{5}-\d{3}
-          maxLength: 15
-        phone:
-          description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
-          type: string 
-          pattern: \(\d{2}\)\d{4}-\d{4}
-          maxLength: 255
-        cell_phone:
-          description: Celular do endereço formato {(xx)xxxxx-xxxx}
-          type: string
-          pattern: \(\d{2}\)\d{5}-\d{4}
-          maxLength: 255
         fk_customer:
           description: FK para customer
           type: string
           maxLength: 10
-        fk_country:
-          description: País do customer
-          type: string
-          maxLength: 10
-        fk_country_name:
-          description: Nome do país, referência de fk_country; origem = country; nome do campo = name
-          type: string
-        fk_customer_address_region:
-         description: FK para o Estado do customer
-         type: string
-         maxLength: 10
-        region_name:
-          description: Nome do estado; origem = customer_address_region
-          type: string
-          maxLength: 255
-        is_default_billing:
-          description: Flag indica se o endereço do customer é de cobrança
-          type: string
-          enum:
-            - 0
-            - 1
-        is_default_shipping:
-          description: Flag indica se o endereço do customer é de entrega
-          type: string
-          enum:
-            - 0
-            - 1 
-        created_at:
-          description: Data de criação do endereço
-          type: string
-          format: date-time
-          maxLength: 19
-        updated_at:
-          description: Data de atualização do endereço
-          type: string
-          format: date-time
-          maxLength: 19
-        complement:
-          description: Complemento do endereço do customer
-          type: string
-          maxLength: 255
-        neighborhood:
-          description: Bairro do endereço do customer
-          type: string
-          maxLength: 255
-        city_code:
-          description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP
-          type: string
-          maxLength: 7
-        street_number:
-          description: Número do endereço
-          type: string
-          maxLength: 200
-        reference_point:
-          description: Ponto de referência do endereço
-          type: string
-          maxLength: 255
-        id_customer_address_region:
-          description: ID do estado referencia para fk em customer_address; origem = customer_address_region
-          type: string
-          maxLength: 10
-        customer_address_fk_country:
-          description: 0del ID do pais fk para country; origem = customer_address_region
-          type: string
-          maxLength: 10
-        code:
-          description: Sigla do estado; origem = customer_address_region
-          type: string
-          maxLength: 32
+        addresses:
+          description: Lista de endereços de um customer
+          type: array
+          items:
+            $ref: "#/definitions/addresses"
+  addresses:
+    type: object
+    properties:
+      id_customer_address:
+        description: ID único do endereço
+        type: string
+        maxLength: 10
+      code_address:
+        description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
+        type: string
+        maxLength: 10
+      first_name:
+        description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer
+        type: string
+        maxLength: 255
+      last_name:
+        description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer
+        type: string
+        maxLength: 255
+      address1:
+        description: Endereço do customer, sem número
+        type: string
+        maxLength: 500
+      address2:
+        description: Endereço do customer
+        type: string
+        maxLength: 500
+      city:
+        description: Cidade do customer
+        type: string
+        maxLength: 255
+      postalcode:
+        description: CEP do customer, formatado padrão br {xxxxx-xxx}
+        type: string
+        pattern: \d{5}-\d{3}
+        maxLength: 15
+      phone:
+        description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
+        type: string 
+        pattern: \(\d{2}\)\d{4}-\d{4}
+        maxLength: 255
+      cell_phone:
+        description: Celular do endereço formato {(xx)xxxxx-xxxx}
+        type: string
+        pattern: \(\d{2}\)\d{5}-\d{4}
+        maxLength: 255
+      fk_country:
+        description: País do customer
+        type: string
+        maxLength: 10
+      fk_country_name:
+        description: Nome do país, referência de fk_country; origem = country; nome do campo = name
+        type: string
+      fk_customer_address_region:
+       description: FK para o Estado do customer
+       type: string
+       maxLength: 10
+      region_name:
+        description: Nome do estado; origem = customer_address_region
+        type: string
+        maxLength: 255
+      is_default_billing:
+        description: Flag indica se o endereço do customer é de cobrança
+        type: string
+        enum:
+          - 0
+          - 1
+      is_default_shipping:
+        description: Flag indica se o endereço do customer é de entrega
+        type: string
+        enum:
+          - 0
+          - 1 
+      created_at:
+        description: Data de criação do endereço
+        type: string
+        format: date-time
+        maxLength: 19
+      updated_at:
+        description: Data de atualização do endereço
+        type: string
+        format: date-time
+        maxLength: 19
+      complement:
+        description: Complemento do endereço do customer
+        type: string
+        maxLength: 255
+      neighborhood:
+        description: Bairro do endereço do customer
+        type: string
+        maxLength: 255
+      city_code:
+        description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP
+        type: string
+        maxLength: 7
+      street_number:
+        description: Número do endereço
+        type: string
+        maxLength: 200
+      reference_point:
+        description: Ponto de referência do endereço
+        type: string
+        maxLength: 255
+      id_customer_address_region:
+        description: ID do estado referencia para fk em customer_address; origem = customer_address_region
+        type: string
+        maxLength: 10
+      customer_address_fk_country:
+        description: 0del ID do pais fk para country; origem = customer_address_region
+        type: string
+        maxLength: 10
+      code:
+        description: Sigla do estado; origem = customer_address_region
+        type: string
+        maxLength: 32
   update_customer_address:
       type: object
       description: Endereço de um customer
       properties:
-        code_address:
-          description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
-          type: string
-          maxLength: 10
-        id_customer_address:
-          description: ID único do endereço
-          type: string
-          maxLength: 10
-        first_name:
-          description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer
-          type: string
-          maxLength: 255
-        last_name:
-          description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer
-          type: string
-          maxLength: 255
-        address1:
-          description: Endereço do customer, sem número
-          type: string
-          maxLength: 500
-        address2:
-          description: Endereço do customer
-          type: string
-          maxLength: 500
-        city:
-          description: Cidade do customer
-          type: string
-          maxLength: 255
-        postalcode:
-          description: CEP do customer, formatado padrão br {xxxxx-xxx}
-          type: string
-          pattern: \d{5}-\d{3}
-          maxLength: 15
-        phone:
-          description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
-          type: string 
-          pattern: \(\d{2}\)\d{4}-\d{4}
-          maxLength: 255
-        cell_phone:
-          description: Celular do endereço formato {(xx)xxxxx-xxxx}
-          type: string
-          pattern: \(\d{2}\)\d{5}-\d{4}
-          maxLength: 255
-        # @notForUse
-        # fk_customer:
-        #   description: FK para customer
-        #   type: string
-        #   maxLength: 10
-        # fk_country:
-        #   description: País do customer
-        #   type: string
-        #   maxLength: 10
-        fk_country_name:
-          description: Nome do país, referência de fk_country; origem = country; nome do campo = name
-          type: string
-        # @notForUse
-        # fk_customer_address_region:
-        #  description: FK para o Estado do customer
-        #  type: string
-        #  maxLength: 10
-        region_name:
-          description: Nome do estado; origem = customer_address_region
-          type: string
-          maxLength: 255
-        is_default_billing:
-          description: Flag indica se o endereço do customer é de cobrança
-          type: string
-          enum:
-            - 0
-            - 1
-        is_default_shipping:
-          description: Flag indica se o endereço do customer é de entrega
-          type: string
-          enum:
-            - 0
-            - 1 
-        updated_at:
-          description: Data de atualização do endereço
-          type: string
-          format: date-time
-          maxLength: 19
-        complement:
-          description: Complemento do endereço do customer
-          type: string
-          maxLength: 255
-        neighborhood:
-          description: Bairro do endereço do customer
-          type: string
-          maxLength: 255
-        city_code:
-          description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP
-          type: string
-          maxLength: 7
-        street_number:
-          description: Número do endereço
-          type: string
-          maxLength: 200
-        reference_point:
-          description: Ponto de referência do endereço
-          type: string
-          maxLength: 255
-        # @notForUse
-        # id_customer_address_region:
-        #   description: ID do estado referencia para fk em customer_address; origem = customer_address_region
-        #   type: string
-        #   maxLength: 10
-        # customer_address_fk_country:
-        #   description: 0del ID do pais fk para country; origem = customer_address_region
-        #   type: string
-        #   maxLength: 10
-        code:
-          description: Sigla do estado; origem = customer_address_region
-          type: string
-          maxLength: 32
+        customer_address:
+          type: object
+          $ref: "#/definitions/customer_address_body"
+  customer_address_body:
+    type: object
+    description: Campos sendo enviados para o BOB para atualização
+    properties:
+      code_address:
+        description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
+        type: string
+        maxLength: 10
+      id_customer_address:
+        description: ID único do endereço
+        type: string
+        maxLength: 10
+      first_name:
+        description: Nome do resposável do endereço, nem sempre é o mesmo nome do customer
+        type: string
+        maxLength: 255
+      last_name:
+        description: Sobrenome do resposável do endereço, nem sempre é o mesmo nome do customer
+        type: string
+        maxLength: 255
+      address1:
+        description: Endereço do customer, sem número
+        type: string
+        maxLength: 500
+      address2:
+        description: Endereço do customer
+        type: string
+        maxLength: 500
+      city:
+        description: Cidade do customer
+        type: string
+        maxLength: 255
+      postalcode:
+        description: CEP do customer, formatado padrão br {xxxxx-xxx}
+        type: string
+        pattern: \d{5}-\d{3}
+        maxLength: 15
+      phone:
+        description: Telefone fixo do endereço formatado padrão br {(zz)xxxx-xxxx}
+        type: string 
+        pattern: \(\d{2}\)\d{4}-\d{4}
+        maxLength: 255
+      cell_phone:
+        description: Celular do endereço formato {(xx)xxxxx-xxxx}
+        type: string
+        pattern: \(\d{2}\)\d{5}-\d{4}
+        maxLength: 255
+      # @notForUse
+      # fk_customer:
+      #   description: FK para customer
+      #   type: string
+      #   maxLength: 10
+      # fk_country:
+      #   description: País do customer
+      #   type: string
+      #   maxLength: 10
+      fk_country_name:
+        description: Nome do país, referência de fk_country; origem = country; nome do campo = name
+        type: string
+      # @notForUse
+      # fk_customer_address_region:
+      #  description: FK para o Estado do customer
+      #  type: string
+      #  maxLength: 10
+      region_name:
+        description: Nome do estado; origem = customer_address_region
+        type: string
+        maxLength: 255
+      is_default_billing:
+        description: Flag indica se o endereço do customer é de cobrança
+        type: string
+        enum:
+          - 0
+          - 1
+      is_default_shipping:
+        description: Flag indica se o endereço do customer é de entrega
+        type: string
+        enum:
+          - 0
+          - 1 
+      updated_at:
+        description: Data de atualização do endereço
+        type: string
+        format: date-time
+        maxLength: 19
+      complement:
+        description: Complemento do endereço do customer
+        type: string
+        maxLength: 255
+      neighborhood:
+        description: Bairro do endereço do customer
+        type: string
+        maxLength: 255
+      city_code:
+        description: 0del Código IBGE da cidade, serviço que devolve de acordo com o CEP
+        type: string
+        maxLength: 7
+      street_number:
+        description: Número do endereço
+        type: string
+        maxLength: 200
+      reference_point:
+        description: Ponto de referência do endereço
+        type: string
+        maxLength: 255
+      # @notForUse
+      # id_customer_address_region:
+      #   description: ID do estado referencia para fk em customer_address; origem = customer_address_region
+      #   type: string
+      #   maxLength: 10
+      # customer_address_fk_country:
+      #   description: 0del ID do pais fk para country; origem = customer_address_region
+      #   type: string
+      #   maxLength: 10
+      code:
+        description: Sigla do estado; origem = customer_address_region
+        type: string
+        maxLength: 32
+# end: block customer

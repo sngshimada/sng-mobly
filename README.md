@@ -1,12 +1,31 @@
 # CHANGELOG:
 
-## UNRELEASED ~~[v.0.6.0]~~ / 2017-06-04
+## [v.0.6.0] / 2017-07-04
 
 ### Added
-- Tags *asyncronous* e *syncronous*
-- Adicionada as tags novas nas requests 
+- Tags *asyncronous*,*syncronous*,*product*
+- Adicionada as tags novas nas requests
+- Adicionado objeto *addresses* 
+- Adicionado chave de indentificação da fila em:
+    - *update_customer_address*
+    - *update_customer* 
+    - *get_customer* [tbd]
+    - *get_customer_address* [tbd]
+- **Adicionado objeto** ***product***
+- **Adiconada request** ****getProductSKU****
 
-## v.0.5.4 / 2017-06-02
+### Changed
+- No retorno pode vir mais de um endereço por cliente, alterado o objeto *get_customer_address*
+- Marcado como deprecated:
+    - updateCustomer
+    - updateCustomerAddress
+        - update será feito por fila 
+    - getCustomer
+    - getCustomerAddress
+        - busca já existe, passará por planning novamente, se for aprovado pode ser reutilizada essas requests 
+    
+
+## [v.0.5.4] / 2017-06-02
 
 ### Added
 - Objeto *update_customer_address*
