@@ -1,5 +1,24 @@
 # CHANGELOG:
 
+## UNRELEASED [v.0.7.0] / 2017-07-04
+
+### Added
+
+- Adicionado objetos
+    - items_evaluation
+    - order_items_evaluation
+    - items_evaluation_response
+    - datas_coleta
+    - evaluated_item_reccomendation
+    - itens_a_coletar
+    - aprovacao_coleta
+- Adicionado request
+    - postSimulaColeta
+    - postSolicitaColeta
+    - postAprovacaoColeta
+- Adicionada tag
+    - reversa  
+
 ## [v.0.6.0] / 2017-07-04
 
 ### Added

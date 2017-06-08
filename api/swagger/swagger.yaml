@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.6.0"
+  version: "0.7.0"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
@@ -17,6 +17,8 @@ tags:
     description: Requisições que retornam informações do cliente Mobly
   - name: processes
     description: Requisições que retornam informações de processos
+  - name: reversa
+    description: Requisições do processo de reversa
   - name: product
     description: Requisições que retornam informações de produtos
   - name: syncronous
@@ -265,7 +267,130 @@ paths:
         404:
           description: Produto não encontrado
           schema:
-            $ref: "#/definitions/stdErroMessage"            
+            $ref: "#/definitions/stdErroMessage"
+  /simulaColeta:
+    post:
+      tags:
+        - processes
+        - reversa
+        - syncronous
+      summary: Solicita uma simulação de coleta para o INO
+      description: CRM solicita para o INO a avaliação de um item, INO faz essa avaliação e responde se o item deve ou não ser coletado 
+      operationId: postSimulaColeta
+      parameters:
+        - name: item_evaluation
+          in: body
+          description: Header de identificação do cliente + formulário do item
+          required: true
+          schema:
+            $ref: "#/definitions/items_evaluation"
+      responses:
+        200:
+          description: Recomendação da coleta
+          schema:
+            $ref: "#/definitions/items_evaluation_response"
+  /solicitaColeta:
+    post:
+      tags:
+        - processes
+        - reversa
+        - syncronous
+      summary: Solicita uma coleta para o INO
+      description: CRM solicita para o INO a aprovação da coleta dos itens enviados
+      operationId: postSolicitaColeta
+      parameters:
+        - name: itens_a_coletar
+          in: body
+          description: Informações que o INO precisa para aprovar/negar o pedido
+          required: true
+          schema:
+            $ref: "#/definitions/itens_a_coletar"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/solicita_response"
+        404:
+          description: Solicitação NOK
+          schema:
+            $ref: "#/definitions/stdErroMessage"
+  /aprovacaoColeta:
+    post:
+      tags:
+        - processes
+        - reversa
+        - syncronous
+      summary: Envia o status das ocorrências de reversa para o INO
+      description: Após o backoffice transporte aprovar ou negar o pedido de coleta, é necessário enviar para o INO registrar a tratativa
+      operationId: postAprovacaoColeta
+      parameters:
+        - name: aprovacao_coleta
+          in: body
+          description: Informações para registar no INO a aprovação/reprovação de uma solicitação de coleta
+          required: true
+          schema:
+            $ref: "#/definitions/aprovacao_coleta"
+      responses:
+        200:
+          description: Registrado com sucesso no INO
+  /novaDataColeta:
+    get:
+      tags:
+        - processes
+        - reversa
+        - syncronous
+      summary: Requisição de nova data de coleta
+      description: Usuário pede para o INO novas datas de coleta para um pedido que já foi aprovado
+      operationId: getNovaDataColeta
+      parameters:
+        - name: coleta_nova_data
+          in: body
+          description: Informações da coleta para solicitar nova data
+          required: true
+          schema:
+            $ref: "#/definitions/coleta_nova_data"
+      responses:
+        200:
+          description: Novas datas disponíveis
+          schema:
+            $ref: "#/definitions/novas_datas"
+    post:
+      tags:
+          - processes
+          - reversa
+          - syncronous
+      summary: Reagendamento da data de coleta
+      description: Usuário manda para o INO aprovar a nova data de coleta
+      operationId: postNovaDataColeta
+      parameters:
+        - name: post_coleta_nova_data
+          in: body
+          description: Informações da coleta para aprovar nova data
+          required: true
+          schema:
+            $ref: "#/definitions/post_coleta_nova_data"
+      responses:
+        200:
+          description: Coleta reagendada e registrada no INO
+  /cancelaColeta:
+    post:
+      tags:
+          - processes
+          - reversa
+          - syncronous
+      summary:  Cancelamento de coleta
+      description: Usuário manda para o INO cancelar a coleta
+      operationId: postCancelaColeta
+      parameters:
+        - name: cancela_coleta
+          in: body
+          description: Informações de cancelamento da coleta
+          required: true
+          schema:
+            $ref: "#/definitions/cancela_coleta"
+      responses:
+        200:
+          description: Coleta cancelada e registrada no INO
 definitions:
   stdErroMessage:
     description: Mensagem de erro a ser usada nas integrações
@@ -705,9 +830,13 @@ definitions:
         type: string
         maxLength: 255
       origin_country:
-        description: País de origem; origem material_supplier
+        description: País de origem; origem = material_supplier
         type: string
         maxLength: 100
+      origin_state:
+        description: Estado de origem; origem = material_supplier
+        type: string
+        maxLength: 255
       color_supplier:
         description: Cor do fornecedor; origem material_supplier
         type: string
@@ -717,7 +846,7 @@ definitions:
         type: string
         maxLength: 255
       comercial_responsavel:
-        description: tbd
+        description: Responsável comercial; campo follow na tabela partner
         type: string
         maxLength: 255
       manager:
@@ -728,6 +857,360 @@ definitions:
         description: Marca do sku; origem = venture_material, join com material; campo = brand
         type: string
         maxLength: 255
+  items_evaluation:
+    type: object
+    description: Header com identificação do pedido e item do pedido
+    properties:
+      order_id:
+        description: Número ID do pedido
+        type: string
+      customer_name:
+        description: Nome do cliente
+        type: string
+      customer_tax_identification:
+        description: CPF/CNPJ do customer
+        type: string
+        pattern: \d{3}.\d{3}.\d{3}-\d{2}; \d{2}.\d{3}.\d{3}\/\d{4}-\d{2}
+      order_itens:
+        type: array
+        items:
+          $ref: "#/definitions/order_items_evaluation"
+  order_items_evaluation:
+    type: object
+    description: Items do pedido sendo enviados
+    properties:     
+      id:
+        description: ID do item do pedido
+        type: string
+        maxLength: 255
+      sku:
+        description: SKU do produto do item do pedido
+        type: string
+        maxLength: 255
+      description:
+        description: short_description do SKU do produto do item do pedido
+        type: string
+        maxLength: 255
+      changedTo_sku:
+        description: Flag que indica se o item foi marcado para troca
+        type: string
+        enum:
+          - 0
+          - 1
+      changedTo_sku_name:
+        description: SKU do produto selecionado para troca
+        type: string
+        maxLength: 255
+      changedTo_sku_description:
+        description: short_description do SKU do produto selecionado para troca
+        type: string
+        maxLength: 255
+      tipo_endereço:
+        description: Tipo do endereço; 1 para "entrega" e 2 para "cobrança"
+        type: string
+        enum:
+          - 1
+          - 2
+      tipo_transporte:
+        description: Tipo de transporte; 1 para "correios" e 2 para "transportadora"
+        type: string
+        enum:
+          - 1
+          - 2
+      tipo_reembolso:
+        description: Tipo do reembolso; 1 - voucher; 2 - troca; 3 - dinheiro; 4 - cartão de crédito; 5 - sem reembolso; 6 - agurdando resposta do cliente
+        type: string
+        enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+      ocorrencia_crm:
+        description: Número do case
+        type: string
+        maxLength: 255
+      numero_volumes_coletar:
+        description: Número de volumes a coletar
+        type: string
+        maxLength: 255
+      numero_volumes_discordante:
+        description: Número de volumes discordantes
+        type: string
+        maxLength: 255
+      motivo:
+        description: Motivo de solicitação de coleta; número de ID (ex:0,1,2)
+        type: string
+        maxLength: 255
+      submotivo:
+        description: Submotivo da solicitação; sub-motivos respeitam uma ordem de precedência, cada sub-motivo pertence a um motivo; esse controle será feito pelo CRM (ex:0,1,2)
+        type: string
+        maxLength: 255
+      tipo_item_reversa:
+        description: Tipo da ação a ser tomada; será enviado o número do ID da ação (ex:0,1,2)
+        type: string
+        maxLength: 255
+      momento_problema:
+        description: Quando o problema aconteceu; será enviado o número do ID do momento (ex:0,1,2)
+        type: string
+        maxLength: 255
+      produto_esta:
+        description: Produto está ou foi montado?; será enviado o número do ID (ex:0,1,2)
+        type: string
+        maxLength: 255
+      situacao_embalagem:
+        description: Situação da embalagem para coleta; será enviado o número do ID (ex:0,1,2)
+        type: string
+        maxLength: 255
+      situacao_avaria:
+        description: Situação da avaria; será enviado o número do ID (ex:0,1,2)
+        type: string
+        maxLength: 255
+      observacao:
+        description: Observações gerais do item
+        type: string
+      retorno_fornecedor:
+        description: Retorno do forncedor; 1 - sim, 0 - não
+        type: string
+        enum:
+          - 0
+          - 1
+  items_evaluation_response:
+    type: object
+    description: Resposta com a recomendação ou não se os itens devem ser coletados
+    properties:
+      order_id:
+        description: Número ID do pedido
+        type: string
+      customer_name:
+        description: Nome do cliente
+        type: string
+      customer_tax_identification:
+        description: CPF/CNPJ do customer
+        type: string
+        pattern: \d{3}.\d{3}.\d{3}-\d{2}; \d{2}.\d{3}.\d{3}\/\d{4}-\d{2}
+      ocorrencia_crm:
+        description: Número do case
+        type: string
+        maxLength: 255
+      message:
+        description: Mensagem indicado as ações recomendadas que devem ser tomadas
+        type: string
+        maxLength: 255
+      datas_coleta:
+        type: array
+        items:
+          $ref: "#/definitions/datas_coleta"
+      prazo_max:
+        description: Caso CEP seja muito distante, enviar o array de datas vazio e informar nesse campo o prazo máximo para coleta
+        type: string
+      evaluated_item_reccomendation:
+        type: array
+        items:
+          $ref: "#/definitions/evaluated_item_recommendation"
+  datas_coleta:
+    description: Datas sugeridas para coleta
+    type: object
+    properties:
+      data:
+        description: Data sugerida de coleta; parse na informação para exibir somente a data
+        type: string
+        format: date
+  evaluated_item_recommendation:
+    type: object
+    description: Avaliação do item para coleta
+    properties:
+      item_id:
+        description: ID do item
+        type: string
+        maxLength: 255
+      sku:
+        description: SKU do item
+        type: string
+        maxLength: 255
+      resultado_calculo_frete_reversa:
+        description: Cálculo do frete do item
+        type: number
+        format: float
+      valor_sugestao_coleta:
+        description: Valor de sugestão da coleta
+        type: number
+        format: float
+      farol:
+        description: Farol de sinalização do item; 1 - verde, 2 - vermelho, 3 - cinza
+        type: string
+        enum:
+          - 1
+          - 2
+          - 3
+      sugestao_coleta:
+        description: Sugestão sobre o item se coleta ou não
+        type: string
+  itens_a_coletar:
+    type: object
+    properties:
+      decisao_coleta:
+        description: Ação tomada pelo atendente; 1 - coletar todos, 2 - não coletar os vermelhos
+        type: string
+        enum:
+          - 1
+          - 2
+      descricao:
+        description: Se selecionada coleta de itens marcados como vermelhos, esse campo será preenchido
+      data_coleta:
+        description: Data selecionada de coleta
+        type: string
+        format: date
+        pattern: \d{4}-\d{2}-\d{2}
+      formulario:
+        type: object
+        $ref: "#/definitions/items_evaluation"
+      itens_simulados:
+        description: Itens do pedido e qual o farol de cada um deles
+        type: array
+        items:
+          $ref: "#/definitions/itens_simulados"
+      usuario_crm:
+        description: ID do usuário solicitante da coleta
+        type: string
+  itens_simulados:
+    type: object
+    properties:
+      id:
+        description: ID do item do pedido
+        type: string
+      sku:
+        description: SKU do item do pedido
+        type: string
+      resultado_calculo_frete_reversa:
+        description: Cálculo do frete do item
+        type: number
+        format: float
+      valor_sugestao_coleta:
+        description: Valor de sugestão da coleta
+        type: number
+        format: float
+      farol:
+        description: Farol de recomendação de coleta do item; 1 - verde, 2 - vermelho, 3 - cinza
+        type: string
+        enum:
+          - 1
+          - 2
+          - 3
+      sugestao_coleta:
+        description: Sugstão sobre a coleta do item
+        type: string
+  solicita_response:
+    type: object
+    properties:
+      status_solicitacao:
+        description: Envia para o CRM se a solicitação de coleta foi recebida no INO
+        type: string
+        enum:
+          - true
+          - false
+      ocorrencia_crm:
+        description: Número do case que originou o pedido
+        type: string
+  aprovacao_coleta:
+    type: object
+    properties:
+      ocorrencia_crm:
+        description: Número da ocorrências (case)
+        type: string
+      order_id:
+        description: Número ID do pedido
+        type: string
+      status_tratativa:
+        description: Aprovação ou reprovação da solicitação de coleta
+        type: string
+        enum:
+          - aprovado
+          - reprovado
+      id_transportadora:
+        description: Transportadora escolhida para a coleta, somente se status_tratativa = aprovado
+        type: string
+      motivo_reprovado:
+        description: Motivo da reprovação, somente se status_tratativa = reprovado
+        type: string
+      itens_aprovados:
+        type: array
+        items:
+          $ref: "#/definitions/itens_simulados"
+  coleta_nova_data:
+    type: object
+    properties:
+      order_id:
+        description: Número do ID do pedido
+        type: string
+      id_case_crm:
+        description: Número do case no CRM
+        type: string
+      tipo_endereco:
+        description: Tipo do endereço; 1 - entrega, 2 - cobrança
+        type: string
+        enum:
+          - 1
+          - 2
+  novas_datas:
+    type: object
+    properties:
+      order_id:
+        description: Número do ID do pedido
+        type: string
+      id_case_crm:
+        description: Número do case no CRM
+        type: string
+      datas_disponíveis:
+        type: array
+        items:
+          $ref: "#/definitions/datas_disponiveis"
+      prazo_max:
+        description: Data limite de entrega
+        type: string
+  datas_disponiveis:
+    type: object
+    properties:
+      data_disponivel:
+        type: string
+        format: date
+        pattern: AAAA-MM-DD
+  post_coleta_nova_data:
+    type: object
+    properties:
+      order_id:
+        description: Número do ID do pedido
+        type: string
+      id_case_crm:
+        description: Número do case no CRM
+        type: string
+      data_atual_agendada:
+        description: Data atual do agendamento da coleta
+        type: string
+        format: date
+      nova_data:
+        description: Nova data de agendamento da coleta
+        type: string
+        format: date
+      usuario_crm:
+        description: ID do usuário de CRM que está solicitando a nova data de coleta
+        type: string
+  cancela_coleta:
+    type: object
+    properties:
+      oder_id:
+        description: Número do ID do pedido
+        type: string
+      id_case_crm:
+        description: Número do case no CRM
+        type: string
+      motivo:
+        description: Motivo da solicitação de cancelamento
+        type: string
+      usuario_crm:
+        description: ID do usuário de CRM que está solicitando a nova data de coleta
+        type: string
   # start: block customer
   # get_customer:
   #   type: object
@@ -792,7 +1275,7 @@ definitions:
   #       description: CNPJ do customer. Formato {xx.xxx.xxx/xxxx-xx}
   #       type: string
   #       maxLength: 64
-  #       pattern: \d{2}.\d{3}.\d{3}\/\d{4}-\d{2}
+  #       pattern: '"\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}'"
   #     legal_name: 
   #       description: Razão social
   #       type: string
@@ -1254,7 +1737,7 @@ definitions:
         type: string
         maxLength: 10
       code_address:
-        description: 0tbd formato; ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
+        description: ID único para identificar o endereço nos dois sistemas a fim de evitar que se crie endereços com duplciidade onde deveria ser uma atualização
         type: string
         maxLength: 10
       first_name:
