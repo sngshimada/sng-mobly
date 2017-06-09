@@ -1,6 +1,32 @@
 # CHANGELOG:
 
-## UNRELEASED [v.0.7.0] / 2017-07-04
+## UNRELEASED [v.0.7.1] / 2017-07-04
+
+### Added
+- Criada tag *rebate*, adicionada nas requests específicas
+
+### Fixed
+- Adicionado "usuario_crm" em postAprovacaoColeta
+
+### Changed
+- Busca por produtos
+    - Sem parâmetro no path, somente na query
+    - Parâmetro indicando o tipo de resposta esperada
+- postSimulaColeta - items_evaluation_response
+    - retirado *ocorrencia_crm* da response
+    - retirado *message* da response 
+- *solicita_response*
+    - adicionado *queue_id*
+- *aprovacao_coleta*
+    - adicionado *queue_id*  
+- ~~*coleta_nova_data*~~
+    - ~~adicionado *queue_id*~~
+- *order_evaluated*
+    - adicionado *usuario_crm*
+- *rebate_order_items* 
+    - *order_items_evaluation*
+
+## [v.0.7.0] / 2017-07-04
 
 ### Added
 
@@ -18,6 +44,7 @@
     - postAprovacaoColeta
 - Adicionada tag
     - reversa  
+
 
 ## [v.0.6.0] / 2017-07-04
 
@@ -128,4 +155,3 @@
 - Alterado nome das propriedades que eram de itemEvaluation para refletir como orderRebate
 - Alterado rebate_value para rebate
 - Alterado de resp_order_item para rebate_order_item
-

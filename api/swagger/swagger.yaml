@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: "0.7.0"
+  version: "0.7.1"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
 host: tbd
@@ -19,6 +19,8 @@ tags:
     description: Requisições que retornam informações de processos
   - name: reversa
     description: Requisições do processo de reversa
+  - name: rebate
+    description: Requisições do processo de rebate 
   - name: product
     description: Requisições que retornam informações de produtos
   - name: syncronous
@@ -201,6 +203,7 @@ paths:
     get:
       tags: 
         - processes
+        - rebate
         - syncronous
       summary: Consulta de valor de rebate
       description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
@@ -225,6 +228,7 @@ paths:
     post:
       tags:
         - processes
+        - rebate
         - syncronous
       summary: Pedido de aprovação/registro no INO de rebate
       description: Envia para o INO o valor do rebate escolhido pelo atendente e aguarda a confirmação por parte do INO
@@ -245,7 +249,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
-  /product/{sku}:
+  /product:
     get:
       tags:
         - product
@@ -254,11 +258,26 @@ paths:
       description: Busca de produtos ou peça de produtos pelo SKU, completo ou parcial
       operationId: getProductSKU
       parameters:
-        - name: sku
-          in: path
-          description: SKU parcial ou completo do produto, ou peça do produto, buscado
+        - name: text_input
+          in: query
+          description: Texto que está sendo procurado
           type: string
           required: true
+        - name: input_type
+          in: query
+          description: O que está sendo passado para ser procurado no campo text_input
+          type: string
+          enum:
+            - sku
+            - description
+            - ean
+        - name: response_type
+          in: query
+          description: Indica se deve ser retornado todos as informações do produto, ou apenas um resumo, resumo é usado principalmente nos processos da reversa
+          type: string
+          enum:
+            - full
+            - partial
       responses:
         200:
           description: Produto encontrado
@@ -515,6 +534,9 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/order_items"
+      usuario_crm:
+        description: username de quem está solicitando o rebate
+        type: string
   order_items:
     type: object
     description: Items que são enviados para o INO para serem avaliados
@@ -566,6 +588,14 @@ definitions:
       rebate_order_items_id:
         description: ID do item
         type: string
+      order_items_evaluation:
+        type: string
+        description: Avaliação do item, depende do que for passado no status
+        enum:
+          - 
+          - Avaria
+          - Sucata
+          - Perfeito Estado
   rebate_confirmation:
     type: object
     description: Confirmação do INO que o rebate foi registrado
@@ -990,14 +1020,6 @@ definitions:
         description: CPF/CNPJ do customer
         type: string
         pattern: \d{3}.\d{3}.\d{3}-\d{2}; \d{2}.\d{3}.\d{3}\/\d{4}-\d{2}
-      ocorrencia_crm:
-        description: Número do case
-        type: string
-        maxLength: 255
-      message:
-        description: Mensagem indicado as ações recomendadas que devem ser tomadas
-        type: string
-        maxLength: 255
       datas_coleta:
         type: array
         items:
@@ -1063,6 +1085,9 @@ definitions:
         type: string
         format: date
         pattern: \d{4}-\d{2}-\d{2}
+      prazo_max:
+        description: Se o que foi informado na simulação for somente o prazo máximo, enviar nesse campo o número de dias
+        type: string
       formulario:
         type: object
         $ref: "#/definitions/items_evaluation"
@@ -1110,12 +1135,18 @@ definitions:
         enum:
           - true
           - false
-      ocorrencia_crm:
-        description: Número do case que originou o pedido
+      id_queue:
+        description: ID da fila de reversa será enviada para o CRM
         type: string
   aprovacao_coleta:
     type: object
     properties:
+      queue_id:
+        description: ID da fila onde está o pedido pendente da reversa ser aprovado
+        type: string
+      usuario_crm:
+        description: Nome do usuário que está aprovando a coleta
+        type: string
       ocorrencia_crm:
         description: Número da ocorrências (case)
         type: string
