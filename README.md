@@ -1,6 +1,24 @@
 # CHANGELOG:
 
-## UNRELEASED [v.0.7.1] / 2017-07-04
+## [v.0.7.2] / 2017-06-12
+
+### Added
+- *coleta_orderItens*
+
+### Deleted
+- *itens_simulados
+
+### Changed
+- *coleta_novas_datas*
+    - relacionado *coleta_orderItens*
+- *post_coleta_nova_data*
+    - relacionado *coleta_orderItens*
+- *cancela_coleta*
+    - relacionado *coleta_orderItens*
+- *itens_a_coletar*
+    -  Refatorado 
+
+## [v.0.7.1] / 2017-06-04
 
 ### Added
 - Criada tag *rebate*, adicionada nas requests específicas
@@ -19,6 +37,7 @@
     - adicionado *queue_id*
 - *aprovacao_coleta*
     - adicionado *queue_id*  
+    - adicionado *numero_volumes_coletar*
 - ~~*coleta_nova_data*~~
     - ~~adicionado *queue_id*~~
 - *order_evaluated*
@@ -26,7 +45,7 @@
 - *rebate_order_items* 
     - *order_items_evaluation*
 
-## [v.0.7.0] / 2017-07-04
+## [v.0.7.0] / 2017-06-04
 
 ### Added
 
@@ -46,7 +65,7 @@
     - reversa  
 
 
-## [v.0.6.0] / 2017-07-04
+## [v.0.6.0] / 2017-06-04
 
 ### Added
 - Tags *asyncronous*,*syncronous*,*product*
