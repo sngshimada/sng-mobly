@@ -1,5 +1,13 @@
 # CHANGELOG:
 
+## UNRELEASED ~~[v.0.8.0] / 2017-07-04~~
+
+### Added
+- tag: searches
+- operações:
+    - **getCustomerFiltered**
+    - **getSaleOrderFiltered**
+
 ## [v.0.7.2] / 2017-06-12
 
 ### Added

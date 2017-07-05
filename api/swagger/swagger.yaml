@@ -3,7 +3,7 @@ info:
   version: "0.7.2"
   title: Integração SugarCRM - Mobly
   description:  0tbd validar a informação, 0del talvez seja desnecessário em duas vias
-host: tbd
+host: ino-dev01.mobly.local
 basePath: /
 schemes:
   - http
@@ -15,8 +15,12 @@ produces:
   - application/json
   - apllication/xml
 tags:
+  - name: searches
+    description: Requisições de busca
   - name: customer
     description: Requisições que retornam informações do cliente Mobly
+  - name: saleOrder
+    description: Requisições que retornam informações do pedido Mobly
   - name: processes
     description: Requisições que retornam informações de processos
   - name: reversa
@@ -30,6 +34,59 @@ tags:
   - name: asyncronous
     description: Operação assíncrona
 paths:
+  /customer:
+    get:
+      tags:
+        - customer
+        - searches
+      summary: Busca de clientes
+      descriptionription: Busca de dados do cliente (ExportCustomer), os valores podem ser enviados total ou parcial
+      operationId: getCustomerFiltered
+      parameters:
+        - name: input_type
+          in: query
+          description: Tipo de campo que está sendo enviado para a busca
+          required: true
+          type: string
+          enum:
+            - tax_identification
+            - email
+            - name
+        - name: input
+          in: query
+          description: Texto buscado
+          type: string
+          required: true
+      responses:
+        200:
+          description: Retorna os dados do customer igual ao retorno atual
+  /saleOrder:
+    get:
+      tags:
+        - saleOrder
+        - searches
+      summary: Busca de pedidos
+      description: Busca de pedidos (ExportSaleOrder), os valores podem ser enviados total ou parcial
+      operationId: getSaleOrderFiltered
+      parameters:
+        - name: input_type
+          in: query
+          description: Tipo de campo que está sendo enviado para a busca
+          required: true
+          type: string
+          enum:
+            - order_number
+            - tracking_code
+            - invoice_key
+            - invoice_no
+        - name: input
+          in: query
+          description: Texto buscado
+          type: string
+          required: true
+      responses:
+        200:
+          description: Retorna os dados do customer igual ao retorno atual
   #block start
   #view do customer apenas, apagar
   /customer/{customerKey}:
@@ -226,6 +283,33 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/stdErroMessage"
+  # #block delete
+  # /ws/crm/sale_order/rebate/evaluation:
+  #   post:
+  #     tags: 
+  #       - processes
+  #       - rebate
+  #       - syncronous
+  #     summary: Consulta de valor de rebate
+  #     description: Envia para o INO os itens que precisam de avaliação para solicitar o rebate, o INO retorna o valor máximo do rebate que pode ser oferecido
+  #     operationId: getOrderRebate2
+  #     parameters:
+  #       - name: order_evaluted
+  #         in: body
+  #         description: Objeto com os itens que devem ser avaliados
+  #         required: true
+  #         schema:
+  #           $ref: "#/definitions/order_evaluated"
+  #     responses:
+  #       200:
+  #         description: Sucess
+  #         schema:
+  #           $ref: "#/definitions/order_evaluated_value"
+  #       400:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/stdErroMessage"
+  # #block end
   /rebateValueApproval:
     post:
       tags:
